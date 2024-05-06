@@ -41,6 +41,9 @@ importers:
       hpp:
         specifier: ^0.2.3
         version: 0.2.3
+      jsonrepair:
+        specifier: ^3.7.0
+        version: 3.7.0
       jsonwebtoken:
         specifier: ^8.5.1
         version: 8.5.1
@@ -53,6 +56,9 @@ importers:
       openai:
         specifier: ^4.41.0
         version: 4.41.0(encoding@0.1.13)
+      openai-gpt-token-counter:
+        specifier: ^1.1.1
+        version: 1.1.1
       reflect-metadata:
         specifier: ^0.1.13
         version: 0.1.14
@@ -74,6 +80,9 @@ importers:
       youtube-captions-scraper:
         specifier: ^2.0.3
         version: 2.0.3
+      youtube-transcript:
+        specifier: ^1.2.1
+        version: 1.2.1
     devDependencies:
       '@swc/cli':
         specifier: ^0.1.57
@@ -2631,6 +2640,10 @@ packages:
   jsonfile@6.1.0:
     resolution: {integrity: sha512-5dgndWOriYSm5cnYaJNhalLNDKOqFwyDB/rr1E9ZsGciGvKPs8R2xYGCacuf3z6K1YKDz182fd+fY3cn3pMqXQ==}
 
+  jsonrepair@3.7.0:
+    resolution: {integrity: sha512-TwE50n4P4gdVfMQF2q+X+IGy4ntFfcuHHE8zjRyBcdtrRK0ORZsjOZD6zmdylk4p277nQBAlHgsEPWtMIQk4LQ==}
+    hasBin: true
+
   jsonwebtoken@8.5.1:
     resolution: {integrity: sha512-XjwVfRS6jTMsqYs0EsuJ4LGxXV14zQybNd4L2r0UvbVnSF9Af8x7p5MzbJ90Ioz/9TI41/hTCvznF/loiSzn8w==}
     engines: {node: '>=4', npm: '>=1.4.28'}
@@ -3077,6 +3090,9 @@ packages:
   onetime@6.0.0:
     resolution: {integrity: sha512-1FlR+gjXK7X+AsAHso35MnyN5KqGwJRi/31ft6x0M194ht7S+rWAvd7PHss9xSKMzE0asv1pyIHaJYq+BbacAQ==}
     engines: {node: '>=12'}
+
+  openai-gpt-token-counter@1.1.1:
+    resolution: {integrity: sha512-kR+igUKHR01Ygm2BmUITAEAmVsOFcHS0KOnkRNjJR0YeSczJ+PYFjUpnE6TNRoqNPVINECVe5VfkxDAf8MU3eA==}
 
   openai@4.41.0:
     resolution: {integrity: sha512-fiV+RvUGRW+PXxycqeDYuOwsL3TxNqT/LcM6vlqyLz9ACmfSUGg1qviQrHuuNKL7gFOvfzgEJRVVFdqmv/sjxg==}
@@ -3721,6 +3737,9 @@ packages:
   text-table@0.2.0:
     resolution: {integrity: sha512-N+8UisAXDGk8PFXP4HAzVR9nbfmVJ3zYLAWiTIoqC5v5isinhr+r5uaO8+7r3BMfuNIufIsA7RdpVgacC2cSpw==}
 
+  tiktoken@1.0.14:
+    resolution: {integrity: sha512-g5zd5r/DoH8Kw0fiYbYpVhb6WO8BHO1unXqmBBWKwoT17HwSounnDtMDFUKm2Pko8U47sjQarOe+9aUrnqmmTg==}
+
   tmpl@1.0.5:
     resolution: {integrity: sha512-3f0uOEAQwIqGuWW2MVzYg8fV/QNnc/IpuJNG837rLuczAaLVHslWHZQj4IGiEl5Hs3kkbhwL9Ab7Hrsmuj+Smw==}
 
@@ -4062,6 +4081,10 @@ packages:
 
   youtube-captions-scraper@2.0.3:
     resolution: {integrity: sha512-XT6U5wFq35P5G99M+2uwNzJFkmGUrb38u8lMMQkv9PpfTOtG8Lpotka7jEqbDnQBshDw6/hgLQV597/tldiyUg==}
+
+  youtube-transcript@1.2.1:
+    resolution: {integrity: sha512-TvEGkBaajKw+B6y91ziLuBLsa5cawgowou+Bk0ciGpjELDfAzSzTGXaZmeSSkUeknCPpEr/WGApOHDwV7V+Y9Q==}
+    engines: {node: '>=18.0.0'}
 
   z-schema@5.0.5:
     resolution: {integrity: sha512-D7eujBWkLa3p2sIpJA0d1pr7es+a7m0vFAnZLlCEKq/Ij2k0MLi9Br2UPxoxdYystm5K1yeBGzub0FlYUEWj2Q==}
@@ -7600,6 +7623,8 @@ snapshots:
     optionalDependencies:
       graceful-fs: 4.2.11
 
+  jsonrepair@3.7.0: {}
+
   jsonwebtoken@8.5.1:
     dependencies:
       jws: 3.2.2
@@ -8072,6 +8097,10 @@ snapshots:
   onetime@6.0.0:
     dependencies:
       mimic-fn: 4.0.0
+
+  openai-gpt-token-counter@1.1.1:
+    dependencies:
+      tiktoken: 1.0.14
 
   openai@4.41.0(encoding@0.1.13):
     dependencies:
@@ -8765,6 +8794,8 @@ snapshots:
 
   text-table@0.2.0: {}
 
+  tiktoken@1.0.14: {}
+
   tmpl@1.0.5: {}
 
   to-fast-properties@2.0.0: {}
@@ -9071,6 +9102,8 @@ snapshots:
       striptags: 3.2.0
     transitivePeerDependencies:
       - debug
+
+  youtube-transcript@1.2.1: {}
 
   z-schema@5.0.5:
     dependencies:

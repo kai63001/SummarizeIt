@@ -1,6 +1,8 @@
 import { Service } from 'typedi';
 import OpenAI from 'openai';
 import { OPENAI_API_KEY } from '@/config';
+import { jsonrepair } from 'jsonrepair';
+import { logger } from '@/utils/logger';
 
 @Service()
 export class OpenAIService {
@@ -20,7 +22,20 @@ export class OpenAIService {
       messages: [
         {
           role: 'system',
-          content: `Create a concise summary of the provided text, focusing on its key points and main ideas. Include relevant details and examples to support these main ideas. Ensure the summary is clear and easy to understand, capturing all essential information without any unnecessary repetition. The length of the summary should be appropriate to the original text's complexity, offering a thorough overview without omitting crucial details.`,
+          content: `Create a concise summary of the provided text, focusing on its key points and main ideas. Include relevant details and examples to support these main ideas. Ensure the summary is clear and easy to understand, capturing all essential information without any unnecessary repetition. The length of the summary should be appropriate to the original text's complexity, offering a thorough overview without omitting crucial details and I want time that this summary save in a sec. and return me json like this {summary: 'summary', time: '50'} time is in sec. time base on your text complexity. that mean if your text is complex then time is more and if your text is simple then time is less.`,
+        },
+        {
+          role: 'user',
+          content:
+            'What is a large language model (LLM)? A large language model (LLM) is a type of artificial intelligence (AI) program that can recognize and generate text, among other tasks. LLMs are trained on huge sets of data',
+        },
+        {
+          role: 'assistant',
+          content: JSON.stringify({
+            summary:
+              'A large language model (LLM) is a type of artificial intelligence (AI) program that can recognize and generate text, among other tasks. LLMs are trained on huge sets of data',
+            time: '50',
+          }),
         },
         {
           role: 'user',
@@ -30,7 +45,43 @@ export class OpenAIService {
       model: 'gpt-3.5-turbo',
     });
 
-    console.log(completion.choices[0]);
-    return completion.choices[0].message.content;
+    const summary = completion.choices[0].message.content;
+    const output = JSON.parse(jsonrepair(summary));
+    logger.info(`Token usage: ${completion.usage.total_tokens}`);
+    return output;
+  }
+
+  public async youtubeSummary(text: string): Promise<any> {
+    const completion = await this.openai.chat.completions.create({
+      messages: [
+        {
+          role: 'system',
+          content: `Create a concise summary of the provided text, focusing on its key points and main ideas. Include relevant details and examples to support these main ideas. Ensure the summary is clear and easy to understand, capturing all essential information without any unnecessary repetition. The length of the summary should be appropriate to the original text's complexity, offering a thorough overview without omitting crucial details and I want time that this summary save in a sec. and return me json like this {summary: 'summary'}`,
+        },
+        {
+          role: 'user',
+          content:
+            'What is a large language model (LLM)? A large language model (LLM) is a type of artificial intelligence (AI) program that can recognize and generate text, among other tasks. LLMs are trained on huge sets of data',
+        },
+        {
+          role: 'assistant',
+          content: JSON.stringify({
+            summary:
+              'A large language model (LLM) is a type of artificial intelligence (AI) program that can recognize and generate text, among other tasks. LLMs are trained on huge sets of data',
+          }),
+        },
+        {
+          role: 'user',
+          content: text,
+        },
+      ],
+      model: 'gpt-3.5-turbo',
+    });
+
+    const summary = completion.choices[0].message.content;
+    const output = JSON.parse(jsonrepair(summary));
+    //log token usage
+    logger.info(`Token usage: ${completion.usage.total_tokens}`);
+    return output;
   }
 }

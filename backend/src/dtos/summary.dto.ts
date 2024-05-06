@@ -5,3 +5,9 @@ export class TextSummaryDto {
   @IsNotEmpty()
   public text: string;
 }
+
+export class YoutubeSummaryDto {
+  @IsString()
+  @IsNotEmpty()
+  public url: string;
+}
