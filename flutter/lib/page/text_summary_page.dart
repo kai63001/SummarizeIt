@@ -67,7 +67,7 @@ class _TextSummaryPageState extends State<TextSummaryPage> {
                     right: 10,
                     bottom: 10,
                     child: Text(
-                      '$_characterCount characters',
+                      '$_characterCount/10,000 characters',
                       style: const TextStyle(color: Colors.grey),
                     ),
                   ),
