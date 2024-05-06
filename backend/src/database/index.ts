@@ -1,12 +1,12 @@
 import { connect, set } from 'mongoose';
-import { NODE_ENV, DB_HOST, DB_PORT, DB_DATABASE } from '@config';
+import { NODE_ENV, DB_MONGO_URI } from '@config';
 
 export const dbConnection = async () => {
   const dbConfig = {
-    url: `mongodb://${DB_HOST}:${DB_PORT}/${DB_DATABASE}`,
+    url: DB_MONGO_URI,
     options: {
       useNewUrlParser: true,
-      useUnifiedTopology: true
+      useUnifiedTopology: true,
     },
   };
 
@@ -14,5 +14,7 @@ export const dbConnection = async () => {
     set('debug', true);
   }
 
-  await connect(dbConfig.url, dbConfig.options);
-}
+  set('strictQuery', false);
+
+  await connect(dbConfig.url, dbConfig.options as any);
+};
