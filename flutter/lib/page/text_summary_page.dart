@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sumarizeit/page/text_summary_done.dart';
 
 class TextSummaryPage extends StatefulWidget {
   const TextSummaryPage({super.key});
@@ -24,7 +25,7 @@ class _TextSummaryPageState extends State<TextSummaryPage> {
     super.dispose();
   }
 
- void _updateCharacterCount() {
+  void _updateCharacterCount() {
     setState(() {
       _characterCount = _controller.text.length;
     });
@@ -89,7 +90,19 @@ class _TextSummaryPageState extends State<TextSummaryPage> {
                         BorderRadius.circular(15), // Set the radius to 10
                   ),
                 ),
-                onPressed: () {},
+                onPressed: () {
+                  if (_controller.text.isEmpty) {
+                    return;
+                  }
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => TextSummaryDone(
+                        text: _controller.text,
+                      ),
+                    ),
+                  );
+                },
                 child: const Text(
                   'Summarize',
                   style: TextStyle(
