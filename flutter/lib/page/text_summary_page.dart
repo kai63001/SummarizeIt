@@ -14,21 +14,34 @@ class _TextSummaryPageState extends State<TextSummaryPage> {
 
   @override
   void initState() {
-    super.initState();
     _controller.addListener(_updateCharacterCount);
+    super.initState();
   }
 
   @override
   void dispose() {
-    _controller.removeListener(_updateCharacterCount);
-    _controller.dispose();
     super.dispose();
+    _controller.removeListener(_updateCharacterCount);
   }
 
   void _updateCharacterCount() {
     setState(() {
       _characterCount = _controller.text.length;
     });
+  }
+
+  void _submitText() {
+    if (_controller.text.isEmpty) {
+      return;
+    }
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => TextSummaryDone(
+          text: _controller.text,
+        ),
+      ),
+    );
   }
 
   @override
@@ -90,19 +103,7 @@ class _TextSummaryPageState extends State<TextSummaryPage> {
                         BorderRadius.circular(15), // Set the radius to 10
                   ),
                 ),
-                onPressed: () {
-                  if (_controller.text.isEmpty) {
-                    return;
-                  }
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => TextSummaryDone(
-                        text: _controller.text,
-                      ),
-                    ),
-                  );
-                },
+                onPressed: _submitText,
                 child: const Text(
                   'Summarize',
                   style: TextStyle(
