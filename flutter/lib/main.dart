@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:sumarizeit/page/text_summary/text_summary_page.dart';
+import 'package:sumarizeit/page/youtube_summary/youtube_summary_page.dart';
 import 'package:sumarizeit/purchase/purchase_modal.dart';
 
 void main() {
@@ -63,6 +64,16 @@ class _MyHomePageState extends State<MyHomePage> {
                   Navigator.of(context).push(MaterialPageRoute(
                       builder: (context) => const PurchaseModal()));
                 },
+                style: ButtonStyle(
+                  padding: MaterialStateProperty.all(
+                    const EdgeInsets.symmetric(vertical: 13),
+                  ),
+                  shape: MaterialStateProperty.all(
+                    RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                ),
                 child: const Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -129,38 +140,49 @@ class _MyHomePageState extends State<MyHomePage> {
                       ),
                     ),
                     // Card 2
-                    Card(
-                      child: Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            // logo in a circle
-                            Padding(
-                              padding: const EdgeInsets.only(bottom: 8.0),
-                              child: ClipRRect(
-                                borderRadius:
-                                    const BorderRadius.all(Radius.circular(10)),
-                                child: Container(
-                                  width: 50,
-                                  height: 50,
-                                  color: Colors.blue,
-                                  child: const Icon(Icons.audio_file),
+                    GestureDetector(
+                      onTap: () {
+                        HapticFeedback.heavyImpact();
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const YotubeSummaryPage()),
+                        );
+                      },
+                      child: Card(
+                        child: Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // logo in a circle
+                              Padding(
+                                padding: const EdgeInsets.only(bottom: 8.0),
+                                child: ClipRRect(
+                                  borderRadius: const BorderRadius.all(
+                                      Radius.circular(10)),
+                                  child: Container(
+                                    width: 50,
+                                    height: 50,
+                                    color: Colors.blue,
+                                    child: const Icon(Icons.audio_file),
+                                  ),
                                 ),
                               ),
-                            ),
-                            // Text
-                            const Text('Youtube',
+                              // Text
+                              const Text('Youtube',
+                                  style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold)),
+                              Text(
+                                'Summarize your youtube video in a few clicks',
                                 style: TextStyle(
-                                    fontSize: 18, fontWeight: FontWeight.bold)),
-                            Text(
-                              'Summarize your youtube video in a few clicks',
-                              style: TextStyle(
-                                  //color secondary
-                                  color: theme.colorScheme.secondary),
-                            )
-                          ],
+                                    //color secondary
+                                    color: theme.colorScheme.secondary),
+                              )
+                            ],
+                          ),
                         ),
                       ),
                     ),
