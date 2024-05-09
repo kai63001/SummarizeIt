@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:sumarizeit/page/text_summary_done.dart';
+import 'package:sumarizeit/page/summary_done.dart';
 
 class TextSummaryPage extends StatefulWidget {
   const TextSummaryPage({super.key});
@@ -37,7 +37,7 @@ class _TextSummaryPageState extends State<TextSummaryPage> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => TextSummaryDone(
+        builder: (context) => SummaryDone(
           text: _controller.text,
         ),
       ),

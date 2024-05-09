@@ -1,20 +1,18 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:http/http.dart' as http;
 import '../contant/contants.dart';
 import 'dart:convert';
 
-class TextSummaryDone extends StatefulWidget {
-  const TextSummaryDone({super.key, required this.text});
+class SummaryDone extends StatefulWidget {
+  const SummaryDone({super.key, required this.text});
 
   final String text;
 
   @override
-  State<TextSummaryDone> createState() => _TextSummaryDoneState();
+  State<SummaryDone> createState() => _SummaryDoneState();
 }
 
-class _TextSummaryDoneState extends State<TextSummaryDone>
+class _SummaryDoneState extends State<SummaryDone>
     with SingleTickerProviderStateMixin {
   bool _isSummary = false;
   String _summaryText = '';

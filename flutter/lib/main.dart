@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
-import 'package:sumarizeit/page/text_summary_page.dart';
+import 'package:sumarizeit/page/text_summary/text_summary_page.dart';
 import 'package:sumarizeit/purchase/purchase_modal.dart';
 
 void main() {
@@ -52,6 +51,7 @@ class _MyHomePageState extends State<MyHomePage> {
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: ListView(
             children: [
+              const SizedBox(height: 16),
               // large text
               const Text('Start Your Summary Journey Here',
                   style: TextStyle(fontSize: 38, fontWeight: FontWeight.bold)),
