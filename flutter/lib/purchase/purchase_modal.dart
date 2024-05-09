@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
 
 class PurchaseModal extends StatefulWidget {
   const PurchaseModal({super.key});
@@ -53,12 +52,15 @@ class _PurchaseModalState extends State<PurchaseModal> {
                       //between
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text(
-                          'Restore',
-                          style: TextStyle(
-                              color: Color.fromARGB(255, 204, 166, 89),
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold),
+                        const Padding(
+                          padding: EdgeInsets.only(left: 16.0),
+                          child: Text(
+                            'Restore',
+                            style: TextStyle(
+                                color: Color.fromARGB(255, 204, 166, 89),
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold),
+                          ),
                         ),
                         IconButton(
                           icon: const Icon(Icons.close),
