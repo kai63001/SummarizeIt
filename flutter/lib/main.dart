@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:sumarizeit/page/text_summary_page.dart';
+import 'package:sumarizeit/purchase/purchase_modal.dart';
 
 void main() {
   runApp(const MyApp());
@@ -53,7 +55,23 @@ class _MyHomePageState extends State<MyHomePage> {
               // large text
               const Text('Start Your Summary Journey Here',
                   style: TextStyle(fontSize: 38, fontWeight: FontWeight.bold)),
-
+              const SizedBox(height: 10),
+              // Get Primmium
+              ElevatedButton(
+                onPressed: () {
+                  HapticFeedback.heavyImpact();
+                  Navigator.of(context).push(MaterialPageRoute(
+                      builder: (context) => const PurchaseModal()));
+                },
+                child: const Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.star),
+                    SizedBox(width: 8),
+                    Text('Get Premium'),
+                  ],
+                ),
+              ),
               // Grid view
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 16),
@@ -65,6 +83,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     // Card 1
                     GestureDetector(
                       onTap: () {
+                        HapticFeedback.heavyImpact();
                         Navigator.push(
                           context,
                           MaterialPageRoute(
@@ -132,11 +151,11 @@ class _MyHomePageState extends State<MyHomePage> {
                               ),
                             ),
                             // Text
-                            const Text('Audio',
+                            const Text('Youtube',
                                 style: TextStyle(
                                     fontSize: 18, fontWeight: FontWeight.bold)),
                             Text(
-                              'Summarize your audio in a few clicks',
+                              'Summarize your youtube video in a few clicks',
                               style: TextStyle(
                                   //color secondary
                                   color: theme.colorScheme.secondary),
