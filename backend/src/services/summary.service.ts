@@ -52,7 +52,7 @@ export class SummaryService {
     logger.info('Summary generated successfully.');
 
     return {
-      subtitles,
+      text,
       summary,
       time: sum,
     };

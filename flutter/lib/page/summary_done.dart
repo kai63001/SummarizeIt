@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:quickalert/models/quickalert_type.dart';
+import 'package:quickalert/widgets/quickalert_dialog.dart';
 import '../contant/contants.dart';
 import 'dart:convert';
 
 class SummaryDone extends StatefulWidget {
-  const SummaryDone({super.key, required this.text});
+  const SummaryDone({super.key, required this.text, required this.type});
 
   final String text;
+  final String type;
 
   @override
   State<SummaryDone> createState() => _SummaryDoneState();
@@ -16,6 +19,7 @@ class _SummaryDoneState extends State<SummaryDone>
     with SingleTickerProviderStateMixin {
   bool _isSummary = false;
   String _summaryText = '';
+  String _originalText = '';
   late TabController _tabController;
   final ThemeData theme = ThemeData();
   //init
@@ -29,22 +33,51 @@ class _SummaryDoneState extends State<SummaryDone>
   @override
   void dispose() {
     super.dispose();
+    _tabController.dispose();
   }
 
   Future _onSummary() async {
+    Uri api;
+    Map<String, String> body;
+    if (widget.type == 'text-summary') {
+      api = Uri.parse('$apiUrl/summary/text-summary');
+      body = {'text': widget.text};
+    } else {
+      api = Uri.parse('$apiUrl/summary/youtube-summary');
+      body = {'url': widget.text};
+    }
+
     final response = await http.post(
-      Uri.parse('$apiUrl/summary/text-summary'),
-      body: {'text': widget.text},
+      api,
+      body: body,
     );
 
     if (response.statusCode == 200) {
       var responseBody = jsonDecode(response.body); // Add this line
-      setState(() {
-        _summaryText = responseBody['data']['summary']; // Change this line
-        _isSummary = true;
-      });
+      if (widget.type == 'text-summary') {
+        setState(() {
+          _summaryText = responseBody['data']['summary']; // Change this line
+          _originalText = widget.text;
+          _isSummary = true;
+        });
+      } else {
+        setState(() {
+          _summaryText = responseBody['data']['summary']; // Change this line
+          _originalText = responseBody['data']['text'];
+          _isSummary = true;
+        });
+      }
     } else {
-      throw Exception('Failed to load summary');
+      //back to pop
+      // ignore: use_build_context_synchronously
+      Navigator.pop(context);
+      QuickAlert.show(
+        // ignore: use_build_context_synchronously
+        context: context,
+        type: QuickAlertType.error,
+        title: 'Summary Failed',
+        text: '🚨 Transcript is disabled on this video',
+      );
     }
   }
 
@@ -128,7 +161,7 @@ class _SummaryDoneState extends State<SummaryDone>
                     children: [
                       // Text(widget.text),
                       TextField(
-                        controller: TextEditingController(text: widget.text),
+                        controller: TextEditingController(text: _originalText),
                         maxLines: null,
                         readOnly: true,
                         decoration: const InputDecoration(

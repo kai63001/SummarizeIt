@@ -39,6 +39,7 @@ class _TextSummaryPageState extends State<TextSummaryPage> {
       MaterialPageRoute(
         builder: (context) => SummaryDone(
           text: _controller.text,
+          type: 'text-summary'
         ),
       ),
     );

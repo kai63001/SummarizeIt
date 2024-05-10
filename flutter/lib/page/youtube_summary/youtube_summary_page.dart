@@ -2,8 +2,10 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
 import 'package:quickalert/models/quickalert_type.dart';
 import 'package:quickalert/widgets/quickalert_dialog.dart';
+import 'package:sumarizeit/page/summary_done.dart';
 import '../../contant/contants.dart';
 import 'package:http/http.dart' as http;
 
@@ -82,21 +84,62 @@ class _YotubeSummaryPageState extends State<YotubeSummaryPage> {
           style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 20),
-        ElevatedButton(
-          onPressed: () {
-            HapticFeedback.heavyImpact();
-          },
-          style: ButtonStyle(
-            padding: MaterialStateProperty.all(
-              const EdgeInsets.symmetric(vertical: 13),
-            ),
-            shape: MaterialStateProperty.all(
-              RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
+        Row(
+          children: [
+            Expanded(
+              child: ElevatedButton(
+                onPressed: () {
+                  HapticFeedback.heavyImpact();
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => SummaryDone(
+                        text: _controller.text,
+                        type: 'youtube-summary',
+                      ),
+                    ),
+                  );
+                },
+                style: ButtonStyle(
+                  padding: MaterialStateProperty.all(
+                    const EdgeInsets.symmetric(vertical: 13),
+                  ),
+                  shape: MaterialStateProperty.all(
+                    RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                ),
+                child: const Text('Summarize'),
               ),
             ),
-          ),
-          child: const Text('Summarize'),
+            // cancel button with icon x
+            const SizedBox(width: 10),
+            ElevatedButton(
+              onPressed: () {
+                HapticFeedback.heavyImpact();
+                setState(() {
+                  _isGetYoutubeData = false;
+                  _youtubeData = {
+                    'title': '',
+                    'thumbnail': '',
+                  };
+                  _controller.clear();
+                });
+              },
+              style: ButtonStyle(
+                padding: MaterialStateProperty.all(
+                  const EdgeInsets.symmetric(vertical: 12.5),
+                ),
+                shape: MaterialStateProperty.all(
+                  RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ),
+              child: const Icon(Icons.close),
+            ),
+          ],
         ),
       ],
     );
