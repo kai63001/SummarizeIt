@@ -16,5 +16,6 @@ export class SummaryRoute implements Routes {
   private initializeRoutes() {
     this.router.post(`${this.path}/text-summary`, ValidationMiddleware(TextSummaryDto), this.summary.getTextSummary);
     this.router.post(`${this.path}/youtube-summary`, ValidationMiddleware(YoutubeSummaryDto), this.summary.getYoutubeSummary);
+    this.router.get(`${this.path}/get-yotube-data`, this.summary.getYoutubeData);
   }
 }

@@ -3,6 +3,7 @@ import { OpenAIService } from './openai.service';
 import { logger } from '@/utils/logger';
 import { YoutubeTranscript } from 'youtube-transcript';
 import openaiTokenCounter from 'openai-gpt-token-counter';
+import axios from 'axios';
 
 @Service()
 export class SummaryService {
@@ -54,6 +55,17 @@ export class SummaryService {
       subtitles,
       summary,
       time: sum,
+    };
+  }
+
+  public async getYoutubeData(url: string): Promise<any> {
+    const response = await axios.get(`https://noembed.com/embed?url=${url}`);
+    const data = response.data;
+    console.log(data);
+
+    return {
+      title: data.title,
+      thumbnail: data.thumbnail_url,
     };
   }
 }
