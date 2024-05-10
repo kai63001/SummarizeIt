@@ -61,7 +61,6 @@ export class SummaryService {
   public async getYoutubeData(url: string): Promise<any> {
     const response = await axios.get(`https://noembed.com/embed?url=${url}`);
     const data = response.data;
-    console.log(data);
 
     return {
       title: data.title,
