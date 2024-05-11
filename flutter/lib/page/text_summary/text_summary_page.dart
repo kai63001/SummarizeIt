@@ -34,14 +34,13 @@ class _TextSummaryPageState extends State<TextSummaryPage> {
     if (_controller.text.isEmpty) {
       return;
     }
-    Navigator.push(
+    Navigator.pushAndRemoveUntil(
       context,
       MaterialPageRoute(
-        builder: (context) => SummaryDone(
-          text: _controller.text,
-          type: 'text-summary'
-        ),
+        builder: (context) =>
+            SummaryDone(text: _controller.text, type: 'text-summary'),
       ),
+      (Route<dynamic> route) => route.isFirst,
     );
   }
 

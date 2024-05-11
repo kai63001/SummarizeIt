@@ -89,7 +89,7 @@ class _YotubeSummaryPageState extends State<YotubeSummaryPage> {
               child: ElevatedButton(
                 onPressed: () {
                   HapticFeedback.heavyImpact();
-                  Navigator.push(
+                  Navigator.pushAndRemoveUntil(
                     context,
                     MaterialPageRoute(
                       builder: (context) => SummaryDone(
@@ -97,6 +97,7 @@ class _YotubeSummaryPageState extends State<YotubeSummaryPage> {
                         type: 'youtube-summary',
                       ),
                     ),
+                    (Route<dynamic> route) => route.isFirst,
                   );
                 },
                 style: ButtonStyle(

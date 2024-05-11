@@ -78,7 +78,8 @@ class _SummaryDoneState extends State<SummaryDone>
           _summaryText = responseBody['data']['summary']; // Change this line
           _originalText = widget.text;
           _isSummary = true;
-          alertSaveTime(responseBody['data']['time']);
+          //parse time to string
+          alertSaveTime(responseBody['data']['time'].toString());
         });
       } else {
         setState(() {
