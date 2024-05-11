@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:quickalert/models/quickalert_type.dart';
 import 'package:quickalert/widgets/quickalert_dialog.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../contant/contants.dart';
 import 'dart:convert';
 
@@ -36,6 +37,24 @@ class _SummaryDoneState extends State<SummaryDone>
     _tabController.dispose();
   }
 
+  void alertSaveTime(time) {
+    var formattedTime = time.toStringAsFixed(2);
+    QuickAlert.show(
+      context: context,
+      type: QuickAlertType.info,
+      title: 'Time Saved',
+      text: 'You saved $formattedTime minutes',
+    );
+    timeSavedSaveToStorage(time);
+  }
+
+  void timeSavedSaveToStorage(time) async {
+    var formattedTime = time.toStringAsFixed(2);
+    final prefs = await SharedPreferences.getInstance();
+    final timeSaved = prefs.getDouble('timeSaved') ?? 0;
+    prefs.setDouble('timeSaved', timeSaved + double.parse(formattedTime));
+  }
+
   Future _onSummary() async {
     Uri api;
     Map<String, String> body;
@@ -59,12 +78,14 @@ class _SummaryDoneState extends State<SummaryDone>
           _summaryText = responseBody['data']['summary']; // Change this line
           _originalText = widget.text;
           _isSummary = true;
+          alertSaveTime(responseBody['data']['time']);
         });
       } else {
         setState(() {
           _summaryText = responseBody['data']['summary']; // Change this line
           _originalText = responseBody['data']['text'];
           _isSummary = true;
+          alertSaveTime(responseBody['data']['time']);
         });
       }
     } else {
