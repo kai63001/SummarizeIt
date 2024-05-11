@@ -7,10 +7,12 @@ import '../contant/contants.dart';
 import 'dart:convert';
 
 class SummaryDone extends StatefulWidget {
-  const SummaryDone({super.key, required this.text, required this.type});
+  const SummaryDone(
+      {super.key, required this.text, required this.type, this.title = ''});
 
   final String text;
   final String type;
+  final String title;
 
   @override
   State<SummaryDone> createState() => _SummaryDoneState();
@@ -21,6 +23,7 @@ class _SummaryDoneState extends State<SummaryDone>
   bool _isSummary = false;
   String _summaryText = '';
   String _originalText = '';
+  String _titleText = '';
   late TabController _tabController;
   final ThemeData theme = ThemeData();
   //init
@@ -78,6 +81,7 @@ class _SummaryDoneState extends State<SummaryDone>
           _summaryText = responseBody['data']['summary']; // Change this line
           _originalText = widget.text;
           _isSummary = true;
+          _titleText = responseBody['data']['title'];
           // parse to duble
           double time = double.parse(responseBody['data']['time'].toString());
           alertSaveTime(time);
@@ -87,6 +91,7 @@ class _SummaryDoneState extends State<SummaryDone>
           _summaryText = responseBody['data']['summary']; // Change this line
           _originalText = responseBody['data']['text'];
           _isSummary = true;
+          _titleText = widget.title;
           alertSaveTime(responseBody['data']['time']);
         });
       }
@@ -104,6 +109,19 @@ class _SummaryDoneState extends State<SummaryDone>
     }
   }
 
+  void saveToHistory() async {
+    final prefs = await SharedPreferences.getInstance();
+    final history = prefs.getStringList('history') ?? [];
+    // save data title summary and original and type
+    history.add(jsonEncode({
+      'title': _titleText,
+      'summary': _summaryText,
+      'original': _originalText,
+      'type': widget.type,
+    }));
+    prefs.setStringList('history', history);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -119,6 +137,16 @@ class _SummaryDoneState extends State<SummaryDone>
       padding: const EdgeInsets.all(20.0),
       child: Column(
         children: [
+          const SizedBox(
+            height: 5,
+          ),
+          Text(
+            _titleText,
+            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(
+            height: 20,
+          ),
           Container(
             height: 40,
             decoration: BoxDecoration(

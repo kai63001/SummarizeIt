@@ -18,8 +18,8 @@ export class SummaryController {
 
   public getYoutubeSummary = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { url }: { url: string } = req.body;
-      const summary: string = await this.summary.youtubeSummary(url);
+      const { url, title }: { url: string; title: string } = req.body;
+      const summary: string = await this.summary.youtubeSummary(url, title);
 
       res.status(200).json({ data: summary, message: 'summary' });
     } catch (error) {

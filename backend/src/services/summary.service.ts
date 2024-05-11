@@ -33,7 +33,7 @@ export class SummaryService {
     return summary;
   }
 
-  public async youtubeSummary(url: string): Promise<any> {
+  public async youtubeSummary(url: string, title: string): Promise<any> {
     const subtitles = await YoutubeTranscript.fetchTranscript(url, {
       lang: 'en',
     });
@@ -55,6 +55,7 @@ export class SummaryService {
       text,
       summary,
       time: sum,
+      title,
     };
   }
 
