@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sumarizeit/page/text_summary/text_summary_page.dart';
 import 'package:sumarizeit/page/youtube_summary/youtube_summary_page.dart';
 import 'package:sumarizeit/purchase/purchase_modal.dart';
@@ -41,6 +42,24 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  double _timeSaved = 0;
+
+  Future<double> getTimeSaved() async {
+    // get time saved from storage
+    final perfs = await SharedPreferences.getInstance();
+    final timeSaved = perfs.getDouble('timeSaved') ?? 0;
+    setState(() {
+      _timeSaved = timeSaved;
+    });
+    return _timeSaved;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    getTimeSaved();
+  }
+
   @override
   Widget build(BuildContext context) {
     final ThemeData theme = ThemeData();
@@ -199,11 +218,18 @@ class _MyHomePageState extends State<MyHomePage> {
                               fontSize: 12,
                               fontWeight: FontWeight.normal,
                               color: theme.colorScheme.secondary)),
-                      const Text('0 minutes',
-                          style: TextStyle(
-                              //color secondary
-                              fontSize: 18,
-                              color: Colors.white)),
+                      FutureBuilder(
+                        future: getTimeSaved(),
+                        builder: (context, snapshot) {
+                          return Text(
+                            '${_timeSaved.toStringAsFixed(0)} minutes',
+                            style: const TextStyle(
+                                //color secondary
+                                fontSize: 18,
+                                color: Colors.white),
+                          ); // Replace this with your actual "save time" widget
+                        },
+                      ),
                     ],
                   ),
                 ),
