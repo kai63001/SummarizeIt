@@ -49,12 +49,15 @@ export class SummaryService {
     logger.info(`Token input: ${tokens}`);
     const { summary } = await this.openai.youtubeSummary(text);
 
-    logger.info('Summary generated successfully.');
+    logger.info(`Summary generated successfully. ${sum}`);
+
+    // convert sum to mins
+    const time = Math.ceil(sum / 60);
 
     return {
       text,
       summary,
-      time: sum,
+      time,
       title,
     };
   }

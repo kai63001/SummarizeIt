@@ -22,7 +22,7 @@ export class OpenAIService {
       messages: [
         {
           role: 'system',
-          content: `Create a concise summary of the provided text, focusing on its key points and main ideas. Include relevant details and examples to support these main ideas. Ensure the summary is clear and easy to understand, capturing all essential information without any unnecessary repetition. The length of the summary should be appropriate to the original text's complexity, offering a thorough overview without omitting crucial details and I want time that this summary save in a sec. and return me json like this {summary: 'summary',title: 'title', time: '50'} time is in sec. time base on your text complexity. that mean if your text is complex then time is more and if your text is simple then time is less.`,
+          content: `Create a concise summary of the provided text, focusing on its key points and main ideas. Include relevant details and examples to support these main ideas. Ensure the summary is clear and easy to understand, capturing all essential information without any unnecessary repetition. The length of the summary should be appropriate to the original text's complexity, offering a thorough overview without omitting crucial details and I want time that this summary save in a sec. and return me json like this {summary: 'summary',title: 'title', time: 5} time is in mins. time base on your text complexity. that mean if your text is complex then time is more and if your text is simple then time is less.`,
         },
         {
           role: 'user',
@@ -35,7 +35,7 @@ export class OpenAIService {
             title: 'Large Language Model',
             summary:
               'A large language model (LLM) is a type of artificial intelligence (AI) program that can recognize and generate text, among other tasks. LLMs are trained on huge sets of data',
-            time: '50',
+            time: 5,
           }),
         },
         {
