@@ -118,6 +118,7 @@ class _SummaryDoneState extends State<SummaryDone>
       'summary': _summaryText,
       'original': _originalText,
       'type': widget.type,
+      'date': DateTime.now().toString()
     }));
     prefs.setStringList('history', history);
   }

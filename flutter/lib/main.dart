@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
@@ -48,6 +50,11 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   double _timeSaved = 0;
+  List<Map<String, dynamic>> _history = [
+    {'title': 'Title', 'summary': 'Summary'},
+    {'title': 'Title', 'summary': 'Summary'},
+    {'title': 'Title', 'summary': 'Summary'},
+  ];
 
   Future<double> getTimeSaved() async {
     // get time saved from storage
@@ -57,6 +64,22 @@ class _MyHomePageState extends State<MyHomePage> {
       _timeSaved = timeSaved;
     });
     return _timeSaved;
+  }
+
+  Future<List<Map<String, dynamic>>> getHistory() async {
+    // get history from storage
+    final perfs = await SharedPreferences.getInstance();
+    final history = perfs.getString('history') ?? '';
+    // json decode
+    List<Map<String, dynamic>> _historyList = [];
+    if (history.isNotEmpty) {
+      _historyList = List<Map<String, dynamic>>.from(jsonDecode(history));
+    }
+    setState(() {
+      _history = _historyList;
+    });
+
+    return _historyList;
   }
 
   @override
