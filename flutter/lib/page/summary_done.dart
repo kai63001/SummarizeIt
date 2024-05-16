@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:quickalert/models/quickalert_type.dart';
 import 'package:quickalert/widgets/quickalert_dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sumarizeit/store/history_store.dart';
 import 'package:sumarizeit/store/saved_time_store.dart';
 import '../contant/contants.dart';
 import 'dart:convert';
@@ -87,20 +88,20 @@ class _SummaryDoneState extends State<SummaryDone>
           _isSummary = true;
           _titleText = responseBody['data']['title'];
           // parse to duble
-          double time = double.parse(responseBody['data']['time'].toString());
-          alertSaveTime(time);
         });
+        double time = double.parse(responseBody['data']['time'].toString());
+        alertSaveTime(time);
       } else {
         setState(() {
           _summaryText = responseBody['data']['summary']; // Change this line
           _originalText = responseBody['data']['text'];
           _isSummary = true;
           _titleText = widget.title;
-          double time = (responseBody['data']['time'] as num).toDouble();
-          print('time : $time');
-          alertSaveTime(time);
         });
+        double time = (responseBody['data']['time'] as num).toDouble();
+        alertSaveTime(time);
       }
+      saveToHistory();
     } else {
       //back to pop
       // ignore: use_build_context_synchronously
@@ -126,7 +127,15 @@ class _SummaryDoneState extends State<SummaryDone>
       'type': widget.type,
       'date': DateTime.now().toString()
     }));
-    prefs.setStringList('history', history);
+
+    // ignore: use_build_context_synchronously
+    context.read<HistoryStore>().add(jsonEncode({
+          'title': _titleText,
+          'summary': _summaryText,
+          'original': _originalText,
+          'type': widget.type,
+          'date': DateTime.now().toString()
+        }));
   }
 
   @override

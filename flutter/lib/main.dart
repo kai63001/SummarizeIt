@@ -1,13 +1,11 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sumarizeit/page/text_summary/text_summary_page.dart';
 import 'package:sumarizeit/page/youtube_summary/youtube_summary_page.dart';
 import 'package:sumarizeit/purchase/purchase_modal.dart';
+import 'package:sumarizeit/store/history_store.dart';
 import 'package:sumarizeit/store/saved_time_store.dart';
 
 void main() {
@@ -20,12 +18,15 @@ void main() {
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
-
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-        create: (context) => SavedTimeStore(),
+    return MultiBlocProvider(
+        providers: [
+          BlocProvider(
+            create: (context) => SavedTimeStore(),
+          ),
+          BlocProvider(create: (context) => HistoryStore()),
+        ],
         child: MaterialApp(
           title: '',
           theme: ThemeData(
@@ -53,24 +54,9 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  Stream<double> _timeSaved = const Stream.empty();
-  List<Map<String, dynamic>> _history = [];
-
-  Stream<double> getTimeSaved() async* {
-    while (true) {
-      // get time saved from storage
-      final perfs = await SharedPreferences.getInstance();
-      final timeSaved = perfs.getDouble('timeSaved') ?? 0;
-      yield timeSaved;
-      await Future.delayed(
-          const Duration(seconds: 1)); // adjust the delay as needed
-    }
-  }
-
   @override
   void initState() {
     super.initState();
-    _timeSaved = getTimeSaved();
   }
 
   @override
@@ -102,30 +88,10 @@ class _MyHomePageState extends State<MyHomePage> {
                         color: const Color(0xFFFFD789),
                         borderRadius: BorderRadius.circular(20),
                       ),
-                      // child: StreamBuilder<double>(
-                      //   stream: _timeSaved,
-                      //   builder: (BuildContext context,
-                      //       AsyncSnapshot<double> snapshot) {
-                      //     if (snapshot.connectionState ==
-                      //         ConnectionState.waiting) {
-                      //       return CircularProgressIndicator();
-                      //     } else if (snapshot.hasError) {
-                      //       return Text('Error: ${snapshot.error}');
-                      //     } else {
-                      //       return Text(
-                      //         'Time saved: ${NumberFormat("#,##0").format(snapshot.data)} mins',
-                      //         style: const TextStyle(
-                      //             fontSize: 16,
-                      //             color: Colors.black,
-                      //             fontWeight: FontWeight.bold),
-                      //       );
-                      //     }
-                      //   },
-                      // )
                       child: BlocBuilder<SavedTimeStore, double>(
                         builder: (context, state) {
                           return Text(
-                            'Time saved: ${double.parse(state.toString()).toStringAsFixed(0)} mins',
+                            'Time saved: ${NumberFormat("#,##0").format(double.parse(state.toString()))} mins',
                             style: const TextStyle(
                                 fontSize: 16,
                                 color: Colors.black,
@@ -297,6 +263,22 @@ class _MyHomePageState extends State<MyHomePage> {
                       ),
                       const SizedBox(height: 10),
                       // History list
+                      BlocBuilder<HistoryStore, List<Map<String, dynamic>>>(
+                          builder: (context, state) {
+                        return ListView.builder(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemCount: state.length,
+                          itemBuilder: (context, index) {
+                            return ListTile(
+                              title: Text(state[index]['title']),
+                              subtitle: Text(
+                                  '${state[index]['summary'].toString().length >= 50 ? state[index]['summary'].toString().substring(0, 50) : state[index]['summary'].toString()}...'),
+                              trailing: const Icon(Icons.arrow_forward_ios),
+                            );
+                          },
+                        );
+                      })
 
                       // ListView.builder(
                       //   shrinkWrap: true,
