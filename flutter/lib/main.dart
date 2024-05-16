@@ -2,11 +2,13 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sumarizeit/page/text_summary/text_summary_page.dart';
 import 'package:sumarizeit/page/youtube_summary/youtube_summary_page.dart';
 import 'package:sumarizeit/purchase/purchase_modal.dart';
+import 'package:sumarizeit/store/saved_time_store.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -22,21 +24,23 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: '',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          surfaceVariant: Colors.transparent,
-          seedColor: const Color(0xFF282834),
-          primary: const Color(0xFFFFD789),
-          background: const Color(0xFF14141A),
-          // ···
-          brightness: Brightness.dark,
-        ),
-        useMaterial3: true,
-      ),
-      home: const MyHomePage(title: 'Sumarize It!'),
-    );
+    return BlocProvider(
+        create: (context) => SavedTimeStore(),
+        child: MaterialApp(
+          title: '',
+          theme: ThemeData(
+            colorScheme: ColorScheme.fromSeed(
+              surfaceVariant: Colors.transparent,
+              seedColor: const Color(0xFF282834),
+              primary: const Color(0xFFFFD789),
+              background: const Color(0xFF14141A),
+              // ···
+              brightness: Brightness.dark,
+            ),
+            useMaterial3: true,
+          ),
+          home: const MyHomePage(title: 'Sumarize It!'),
+        ));
   }
 }
 
@@ -49,43 +53,29 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  double _timeSaved = 0;
-  List<Map<String, dynamic>> _history = [
-    {'title': 'Title', 'summary': 'Summary'},
-    {'title': 'Title', 'summary': 'Summary'},
-    {'title': 'Title', 'summary': 'Summary'},
-  ];
+  Stream<double> _timeSaved = const Stream.empty();
+  List<Map<String, dynamic>> _history = [];
 
-  Future<double> getTimeSaved() async {
-    // get time saved from storage
-    final perfs = await SharedPreferences.getInstance();
-    final timeSaved = perfs.getDouble('timeSaved') ?? 0;
-    setState(() {
-      _timeSaved = timeSaved;
-    });
-    return _timeSaved;
-  }
-
-  Future<List<Map<String, dynamic>>> getHistory() async {
-    // get history from storage
-    final perfs = await SharedPreferences.getInstance();
-    final history = perfs.getString('history') ?? '';
-    // json decode
-    List<Map<String, dynamic>> _historyList = [];
-    if (history.isNotEmpty) {
-      _historyList = List<Map<String, dynamic>>.from(jsonDecode(history));
+  Stream<double> getTimeSaved() async* {
+    while (true) {
+      // get time saved from storage
+      final perfs = await SharedPreferences.getInstance();
+      final timeSaved = perfs.getDouble('timeSaved') ?? 0;
+      yield timeSaved;
+      await Future.delayed(
+          const Duration(seconds: 1)); // adjust the delay as needed
     }
-    setState(() {
-      _history = _historyList;
-    });
-
-    return _historyList;
   }
 
   @override
   void initState() {
     super.initState();
-    getTimeSaved();
+    _timeSaved = getTimeSaved();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
   }
 
   @override
@@ -106,31 +96,43 @@ class _MyHomePageState extends State<MyHomePage> {
                 children: [
                   // rounded text saved time
                   Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFFFD789),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: FutureBuilder(
-                      future: getTimeSaved(),
-                      builder: (context, snapshot) {
-                        return Row(
-                          children: [
-                            //Icon save or check
-                            const Icon(Icons.check, color: Colors.black),
-                            const SizedBox(width: 8),
-                            Text(
-                              '${NumberFormat('#,##0').format(_timeSaved)} mins saved',
-                              style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.black),
-                            ),
-                          ],
-                        );
-                      },
-                    ),
-                  ),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 8),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFFD789),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      // child: StreamBuilder<double>(
+                      //   stream: _timeSaved,
+                      //   builder: (BuildContext context,
+                      //       AsyncSnapshot<double> snapshot) {
+                      //     if (snapshot.connectionState ==
+                      //         ConnectionState.waiting) {
+                      //       return CircularProgressIndicator();
+                      //     } else if (snapshot.hasError) {
+                      //       return Text('Error: ${snapshot.error}');
+                      //     } else {
+                      //       return Text(
+                      //         'Time saved: ${NumberFormat("#,##0").format(snapshot.data)} mins',
+                      //         style: const TextStyle(
+                      //             fontSize: 16,
+                      //             color: Colors.black,
+                      //             fontWeight: FontWeight.bold),
+                      //       );
+                      //     }
+                      //   },
+                      // )
+                      child: BlocBuilder<SavedTimeStore, double>(
+                        builder: (context, state) {
+                          return Text(
+                            'Time saved: ${double.parse(state.toString()).toStringAsFixed(0)} mins',
+                            style: const TextStyle(
+                                fontSize: 16,
+                                color: Colors.black,
+                                fontWeight: FontWeight.bold),
+                          );
+                        },
+                      )),
 
                   // profile
                   Container(
@@ -262,32 +264,6 @@ class _MyHomePageState extends State<MyHomePage> {
                   ],
                 ),
               ),
-              // Card(
-              //   child: Padding(
-              //     padding: const EdgeInsets.all(8.0),
-              //     child: Column(
-              //       children: [
-              //         Text('Time Saved',
-              //             style: TextStyle(
-              //                 fontSize: 12,
-              //                 fontWeight: FontWeight.normal,
-              //                 color: theme.colorScheme.secondary)),
-              //         FutureBuilder(
-              //           future: getTimeSaved(),
-              //           builder: (context, snapshot) {
-              //             return Text(
-              //               '${_timeSaved.toStringAsFixed(0)} minutes',
-              //               style: const TextStyle(
-              //                   //color secondary
-              //                   fontSize: 18,
-              //                   color: Colors.white),
-              //             ); // Replace this with your actual "save time" widget
-              //           },
-              //         ),
-              //       ],
-              //     ),
-              //   ),
-              // )
               // History
               Card(
                 child: Padding(
@@ -321,18 +297,19 @@ class _MyHomePageState extends State<MyHomePage> {
                       ),
                       const SizedBox(height: 10),
                       // History list
-                      ListView.builder(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemCount: 3,
-                        itemBuilder: (context, index) {
-                          return const ListTile(
-                            title: Text('Title'),
-                            subtitle: Text('Summary'),
-                            trailing: Icon(Icons.arrow_forward_ios),
-                          );
-                        },
-                      )
+
+                      // ListView.builder(
+                      //   shrinkWrap: true,
+                      //   physics: const NeverScrollableScrollPhysics(),
+                      //   itemCount: 3,
+                      //   itemBuilder: (context, index) {
+                      //     return const ListTile(
+                      //       title: Text('Title'),
+                      //       subtitle: Text('Summary'),
+                      //       trailing: Icon(Icons.arrow_forward_ios),
+                      //     );
+                      //   },
+                      // )
                     ],
                   ),
                 ),

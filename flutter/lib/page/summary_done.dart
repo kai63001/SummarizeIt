@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:http/http.dart' as http;
 import 'package:quickalert/models/quickalert_type.dart';
 import 'package:quickalert/widgets/quickalert_dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sumarizeit/store/saved_time_store.dart';
 import '../contant/contants.dart';
 import 'dart:convert';
 
@@ -40,7 +42,7 @@ class _SummaryDoneState extends State<SummaryDone>
     _tabController.dispose();
   }
 
-  void alertSaveTime(time) {
+  void alertSaveTime(double time) {
     var formattedTime = time.toStringAsFixed(2);
     QuickAlert.show(
       context: context,
@@ -51,11 +53,13 @@ class _SummaryDoneState extends State<SummaryDone>
     timeSavedSaveToStorage(time);
   }
 
-  void timeSavedSaveToStorage(time) async {
-    var formattedTime = time.toStringAsFixed(2);
-    final prefs = await SharedPreferences.getInstance();
-    final timeSaved = prefs.getDouble('timeSaved') ?? 0;
-    prefs.setDouble('timeSaved', timeSaved + double.parse(formattedTime));
+  void timeSavedSaveToStorage(double time) async {
+    // var formattedTime = time.toStringAsFixed(2);
+    // final prefs = await SharedPreferences.getInstance();
+    // final timeSaved = prefs.getDouble('timeSaved') ?? 0;
+    // prefs.setDouble('timeSaved', timeSaved + double.parse(formattedTime));
+    final timeBloc = context.read<SavedTimeStore>();
+    timeBloc.increment(time);
   }
 
   Future _onSummary() async {
@@ -92,7 +96,9 @@ class _SummaryDoneState extends State<SummaryDone>
           _originalText = responseBody['data']['text'];
           _isSummary = true;
           _titleText = widget.title;
-          alertSaveTime(responseBody['data']['time']);
+          double time = (responseBody['data']['time'] as num).toDouble();
+          print('time : $time');
+          alertSaveTime(time);
         });
       }
     } else {
