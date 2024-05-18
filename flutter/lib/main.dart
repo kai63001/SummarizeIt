@@ -6,6 +6,7 @@ import 'package:sumarizeit/page/history/history_page.dart';
 import 'package:sumarizeit/page/text_summary/text_summary_page.dart';
 import 'package:sumarizeit/page/youtube_summary/youtube_summary_page.dart';
 import 'package:sumarizeit/purchase/purchase_modal.dart';
+import 'package:sumarizeit/store/deviceId_store.dart';
 import 'package:sumarizeit/store/history_store.dart';
 import 'package:sumarizeit/store/saved_time_store.dart';
 
@@ -27,6 +28,7 @@ class MyApp extends StatelessWidget {
             create: (context) => SavedTimeStore(),
           ),
           BlocProvider(create: (context) => HistoryStore()),
+          BlocProvider(create: (context) => DeviceIdStore()),
         ],
         child: MaterialApp(
           title: '',

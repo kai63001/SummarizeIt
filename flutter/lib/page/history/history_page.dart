@@ -23,12 +23,15 @@ class HistoryPage extends StatelessWidget {
                 onTap: () {
                   HapticFeedback.heavyImpact();
                 },
-                child: Card(
-                  child: ListTile(
-                    title: Text(state[index]['title']),
-                    subtitle: Text(
-                        '${state[index]['summary'].toString().length >= 50 ? state[index]['summary'].toString().substring(0, 50) : state[index]['summary'].toString()}...'),
-                    trailing: const Icon(Icons.arrow_forward_ios),
+                child: Padding(
+                  padding: EdgeInsets.only(top: index == 0 ? 20.0 : 0),
+                  child: Card(
+                    child: ListTile(
+                      title: Text(state[index]['title']),
+                      subtitle: Text(
+                          '${state[index]['summary'].toString().length >= 50 ? state[index]['summary'].toString().substring(0, 50) : state[index]['summary'].toString()}...'),
+                      trailing: const Icon(Icons.arrow_forward_ios),
+                    ),
                   ),
                 ),
               );
