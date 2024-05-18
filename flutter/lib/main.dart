@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+import 'package:sumarizeit/page/history/history_page.dart';
 import 'package:sumarizeit/page/text_summary/text_summary_page.dart';
 import 'package:sumarizeit/page/youtube_summary/youtube_summary_page.dart';
 import 'package:sumarizeit/purchase/purchase_modal.dart';
@@ -250,11 +251,12 @@ class _MyHomePageState extends State<MyHomePage> {
                             TextButton(
                               onPressed: () {
                                 HapticFeedback.heavyImpact();
-                                // Navigator.push(
-                                //   context,
-                                //   MaterialPageRoute(
-                                //       builder: (context) => const HistoryPage()),
-                                // );
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          const HistoryPage()),
+                                );
                               },
                               child: const Text('View All'),
                             )
@@ -268,30 +270,22 @@ class _MyHomePageState extends State<MyHomePage> {
                         return ListView.builder(
                           shrinkWrap: true,
                           physics: const NeverScrollableScrollPhysics(),
-                          itemCount: state.length,
+                          itemCount: state.length >= 3 ? 3 : state.length,
                           itemBuilder: (context, index) {
-                            return ListTile(
-                              title: Text(state[index]['title']),
-                              subtitle: Text(
-                                  '${state[index]['summary'].toString().length >= 50 ? state[index]['summary'].toString().substring(0, 50) : state[index]['summary'].toString()}...'),
-                              trailing: const Icon(Icons.arrow_forward_ios),
+                            return GestureDetector(
+                              onTap: () {
+                                HapticFeedback.heavyImpact();
+                              },
+                              child: ListTile(
+                                title: Text(state[index]['title']),
+                                subtitle: Text(
+                                    '${state[index]['summary'].toString().length >= 50 ? state[index]['summary'].toString().substring(0, 50) : state[index]['summary'].toString()}...'),
+                                trailing: const Icon(Icons.arrow_forward_ios),
+                              ),
                             );
                           },
                         );
                       })
-
-                      // ListView.builder(
-                      //   shrinkWrap: true,
-                      //   physics: const NeverScrollableScrollPhysics(),
-                      //   itemCount: 3,
-                      //   itemBuilder: (context, index) {
-                      //     return const ListTile(
-                      //       title: Text('Title'),
-                      //       subtitle: Text('Summary'),
-                      //       trailing: Icon(Icons.arrow_forward_ios),
-                      //     );
-                      //   },
-                      // )
                     ],
                   ),
                 ),

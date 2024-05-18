@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:http/http.dart' as http;
 import 'package:quickalert/models/quickalert_type.dart';
 import 'package:quickalert/widgets/quickalert_dialog.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sumarizeit/store/history_store.dart';
 import 'package:sumarizeit/store/saved_time_store.dart';
 import '../contant/contants.dart';
@@ -117,19 +116,8 @@ class _SummaryDoneState extends State<SummaryDone>
   }
 
   void saveToHistory() async {
-    final prefs = await SharedPreferences.getInstance();
-    final history = prefs.getStringList('history') ?? [];
-    // save data title summary and original and type
-    history.add(jsonEncode({
-      'title': _titleText,
-      'summary': _summaryText,
-      'original': _originalText,
-      'type': widget.type,
-      'date': DateTime.now().toString()
-    }));
-
-    // ignore: use_build_context_synchronously
     context.read<HistoryStore>().add(jsonEncode({
+          'id': DateTime.now().toString(),
           'title': _titleText,
           'summary': _summaryText,
           'original': _originalText,
