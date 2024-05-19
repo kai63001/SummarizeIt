@@ -9,3 +9,9 @@ export interface YoutubeCaption {
   offset: number;
   lang: string;
 }
+
+export interface Summary {
+  _id?: string;
+  deviceId: string;
+  createdAt: Date;
+}

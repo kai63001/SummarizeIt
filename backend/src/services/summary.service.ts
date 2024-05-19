@@ -18,7 +18,7 @@ export class SummaryService {
     return tokens;
   }
 
-  public async textSummary(text: string): Promise<string> {
+  public async textSummary(text: string, deviceId: string): Promise<string> {
     const tokens = await this.countTokens(text);
     logger.info(`Token input: ${tokens}`);
     // limit characters to 10000
@@ -33,7 +33,7 @@ export class SummaryService {
     return summary;
   }
 
-  public async youtubeSummary(url: string, title: string): Promise<any> {
+  public async youtubeSummary(url: string, title: string, deviceId: string): Promise<any> {
     const subtitles = await YoutubeTranscript.fetchTranscript(url, {
       lang: 'en',
     });

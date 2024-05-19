@@ -102,10 +102,10 @@ class _SummaryDoneState extends State<SummaryDone>
     }
     if (widget.type == 'text-summary') {
       api = Uri.parse('$apiUrl/summary/text-summary');
-      body = {'text': widget.text};
+      body = {'text': widget.text, 'deviceId': deviceId};
     } else {
       api = Uri.parse('$apiUrl/summary/youtube-summary');
-      body = {'url': widget.text};
+      body = {'url': widget.text, 'deviceId': deviceId};
     }
 
     final response = await http.post(
