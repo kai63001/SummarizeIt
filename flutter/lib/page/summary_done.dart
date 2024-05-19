@@ -10,11 +10,18 @@ import 'dart:convert';
 
 class SummaryDone extends StatefulWidget {
   const SummaryDone(
-      {super.key, required this.text, required this.type, this.title = ''});
+      {super.key,
+      required this.text,
+      required this.type,
+      this.title = '',
+      this.done = false,
+      this.historyId = ''});
 
   final String text;
   final String type;
   final String title;
+  final bool done;
+  final String historyId;
 
   @override
   State<SummaryDone> createState() => _SummaryDoneState();
@@ -62,9 +69,26 @@ class _SummaryDoneState extends State<SummaryDone>
     timeBloc.increment(time);
   }
 
+  Future _getHistoryById() async {
+    context.read<HistoryStore>().state.forEach((element) {
+      if (element['id'] == widget.historyId) {
+        setState(() {
+          _summaryText = element['summary'];
+          _originalText = element['original'];
+          _titleText = element['title'];
+          _isSummary = true;
+        });
+      }
+    });
+  }
+
   Future _onSummary() async {
     Uri api;
     Map<String, String> body;
+    if (widget.done && widget.historyId.isNotEmpty) {
+      _getHistoryById();
+      return;
+    }
     if (widget.type == 'text-summary') {
       api = Uri.parse('$apiUrl/summary/text-summary');
       body = {'text': widget.text};

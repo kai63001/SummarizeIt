@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:sumarizeit/page/summary_done.dart';
 import 'package:sumarizeit/store/history_store.dart';
 
 class HistoryPage extends StatelessWidget {
@@ -22,6 +23,18 @@ class HistoryPage extends StatelessWidget {
               return GestureDetector(
                 onTap: () {
                   HapticFeedback.heavyImpact();
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => SummaryDone(
+                        text: state[index]['summary'],
+                        type: state[index]['type'],
+                        title: state[index]['title'],
+                        done: true,
+                        historyId: state[index]['id'],
+                      ),
+                    ),
+                  );
                 },
                 child: Padding(
                   padding: EdgeInsets.only(top: index == 0 ? 20.0 : 0),

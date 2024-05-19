@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:sumarizeit/page/history/history_page.dart';
+import 'package:sumarizeit/page/summary_done.dart';
 import 'package:sumarizeit/page/text_summary/text_summary_page.dart';
 import 'package:sumarizeit/page/youtube_summary/youtube_summary_page.dart';
 import 'package:sumarizeit/purchase/purchase_modal.dart';
@@ -277,6 +278,18 @@ class _MyHomePageState extends State<MyHomePage> {
                             return GestureDetector(
                               onTap: () {
                                 HapticFeedback.heavyImpact();
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => SummaryDone(
+                                      text: state[index]['summary'],
+                                      type: state[index]['type'],
+                                      title: state[index]['title'],
+                                      done: true,
+                                      historyId: state[index]['id'],
+                                    ),
+                                  ),
+                                );
                               },
                               child: ListTile(
                                 title: Text(state[index]['title']),
