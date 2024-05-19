@@ -61,6 +61,11 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
+    getDeviceId();
+  }
+
+  void getDeviceId() async {
+    context.read<DeviceIdStore>().initDeviceId();
   }
 
   @override

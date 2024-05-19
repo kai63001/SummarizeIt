@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:http/http.dart' as http;
 import 'package:quickalert/models/quickalert_type.dart';
 import 'package:quickalert/widgets/quickalert_dialog.dart';
+import 'package:sumarizeit/store/deviceId_store.dart';
 import 'package:sumarizeit/store/history_store.dart';
 import 'package:sumarizeit/store/saved_time_store.dart';
 import '../contant/contants.dart';
@@ -87,6 +88,16 @@ class _SummaryDoneState extends State<SummaryDone>
     Map<String, String> body;
     if (widget.done && widget.historyId.isNotEmpty) {
       _getHistoryById();
+      return;
+    }
+    String deviceId = context.read<DeviceIdStore>().state;
+    if (deviceId.isEmpty) {
+      QuickAlert.show(
+        context: context,
+        type: QuickAlertType.error,
+        title: 'Error',
+        text: 'Please try again',
+      );
       return;
     }
     if (widget.type == 'text-summary') {

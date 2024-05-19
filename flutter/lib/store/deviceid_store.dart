@@ -7,14 +7,14 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 class DeviceIdStore extends Cubit<String> {
   DeviceIdStore() : super('') {
-    _initDeviceId();
+    initDeviceId();
   }
 
   Future<void> setDeviceId(String deviceId) async {
     emit(deviceId);
   }
 
-  Future<void> _initDeviceId() async {
+  Future<void> initDeviceId() async {
     DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
     String deviceId = '';
     if (Platform.isAndroid) {
