@@ -1,7 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+import 'package:receive_sharing_intent_plus/receive_sharing_intent_plus.dart';
 import 'package:sumarizeit/page/history/history_page.dart';
 import 'package:sumarizeit/page/summary_done.dart';
 import 'package:sumarizeit/page/text_summary/text_summary_page.dart';
@@ -58,6 +61,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+
   @override
   void initState() {
     super.initState();
