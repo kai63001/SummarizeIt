@@ -34,8 +34,7 @@ class _RecordAudioPageState extends State<RecordAudioPage> {
 
     _amplitudeSub = _audioRecorder
         .onAmplitudeChanged(const Duration(milliseconds: 300))
-        .listen((amp) {
-    });
+        .listen((amp) {});
 
     getFileAllInPath();
   }
@@ -171,11 +170,7 @@ class _RecordAudioPageState extends State<RecordAudioPage> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        if (_recordState == RecordState.stop)
-          IconButton(
-            icon: const Icon(Icons.mic),
-            onPressed: startRecording,
-          ),
+        if (_recordState == RecordState.stop) _micDisplay(),
         if (_recordState == RecordState.record)
           IconButton(
             icon: const Icon(Icons.pause),
@@ -191,6 +186,54 @@ class _RecordAudioPageState extends State<RecordAudioPage> {
             icon: const Icon(Icons.stop),
             onPressed: stopRecording,
           )
+      ],
+    );
+  }
+
+  Widget _micDisplay() {
+    return Column(
+      children: [
+        Container(
+          decoration: BoxDecoration(
+            color: Color.fromARGB(255, 33, 28, 20),
+            borderRadius: BorderRadius.circular(200),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(40.0),
+            child: Container(
+              decoration: BoxDecoration(
+                color: const Color.fromARGB(255, 59, 50, 34),
+                borderRadius: BorderRadius.circular(100),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(25.0),
+                child: Container(
+                  // background color and padding
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFFD789),
+                    borderRadius: BorderRadius.circular(100),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(30.0),
+                    child: IconButton(
+                      icon: const Icon(
+                        Icons.mic,
+                        color: Colors.black,
+                        size: 40,
+                      ),
+                      onPressed: startRecording,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(height: 40),
+        const Text(
+          'Press to start recording',
+          style: TextStyle(color: Colors.grey, fontSize: 20),
+        ),
       ],
     );
   }
