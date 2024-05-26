@@ -4,11 +4,14 @@ import 'dart:io';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:record/record.dart';
 // ignore: depend_on_referenced_packages
 import 'package:path/path.dart' as p;
+import 'package:sumarizeit/page/record_audio/widget/list_recording_file.dart';
+import 'package:sumarizeit/store/recording_store.dart';
 
 class RecordAudioPage extends StatefulWidget {
   const RecordAudioPage({super.key});
@@ -28,7 +31,6 @@ class _RecordAudioPageState extends State<RecordAudioPage> {
   StreamSubscription<Amplitude>? _amplitudeSub;
   final _controllerTextName = TextEditingController(text: 'RecordingFile');
   late FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
-  static const platform = MethodChannel('com.summarize.it/notifications');
 
   @override
   void initState() {
@@ -57,7 +59,6 @@ class _RecordAudioPageState extends State<RecordAudioPage> {
     flutterLocalNotificationsPlugin.initialize(initializationSettings);
   }
 
-
   void _generateFileName() {
     final now = DateTime.now();
     setState(() {
@@ -66,22 +67,6 @@ class _RecordAudioPageState extends State<RecordAudioPage> {
       _controllerTextName.text = _nameFile;
     });
   }
-
-  // void startRecording() async {
-  //   try {
-  //     await platform.invokeMethod('startRecording');
-  //   } on PlatformException catch (e) {
-  //     print("Failed to start recording: '${e.message}'.");
-  //   }
-  // }
-
-  // void stopRecording() async {
-  //   try {
-  //     await platform.invokeMethod('stopRecording');
-  //   } on PlatformException catch (e) {
-  //     print("Failed to stop recording: '${e.message}'.");
-  //   }
-  // }
 
   void _updateRecordState(RecordState recordState) {
     setState(() => _recordState = recordState);
@@ -94,6 +79,9 @@ class _RecordAudioPageState extends State<RecordAudioPage> {
         _startTimer();
         break;
       case RecordState.stop:
+      context
+          .read<RecordingStore>()
+          .add('{"name":"$_nameFile", "duration":"$_recordDuration", "date":"${DateTime.now()}"}');
         _timer?.cancel();
         _recordDuration = 0;
         break;
@@ -153,13 +141,7 @@ class _RecordAudioPageState extends State<RecordAudioPage> {
 
   Future<void> startRecording() async {
     if (await _audioRecorder.hasPermission()) {
-      showPersistentNotification();
-      // try {
-      //   showPersistentNotification();
-      // } on PlatformException catch (e) {
-      //   print("Failed to start recording: '${e.message}'.");
-      // }
-      // Start recording to file
+      HapticFeedback.heavyImpact();
       const encoder = AudioEncoder.aacLc;
 
       if (!await _isEncoderSupported(encoder)) {
@@ -173,6 +155,7 @@ class _RecordAudioPageState extends State<RecordAudioPage> {
 
       // Record to file
       await recordFile(_audioRecorder, config);
+      showPersistentNotification();
     }
   }
 
@@ -213,6 +196,8 @@ class _RecordAudioPageState extends State<RecordAudioPage> {
     await _audioRecorder.stop();
     _generateFileName();
     removeNotification();
+
+   
   }
 
   Future<void> pauseRecording() async {
@@ -242,6 +227,8 @@ class _RecordAudioPageState extends State<RecordAudioPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Audio Recorder'),
+        // action for show bottom sheet about list of recording file
+        actions: [CustomBottomSheet(parentContext: context)],
       ),
       body: Center(
         child: Column(

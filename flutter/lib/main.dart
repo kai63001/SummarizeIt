@@ -10,6 +10,7 @@ import 'package:sumarizeit/page/youtube_summary/youtube_summary_page.dart';
 import 'package:sumarizeit/purchase/purchase_modal.dart';
 import 'package:sumarizeit/store/deviceId_store.dart';
 import 'package:sumarizeit/store/history_store.dart';
+import 'package:sumarizeit/store/recording_store.dart';
 import 'package:sumarizeit/store/saved_time_store.dart';
 
 void main() {
@@ -31,6 +32,7 @@ class MyApp extends StatelessWidget {
           ),
           BlocProvider(create: (context) => HistoryStore()),
           BlocProvider(create: (context) => DeviceIdStore()),
+          BlocProvider(create: (context) => RecordingStore()),
         ],
         child: MaterialApp(
           debugShowCheckedModeBanner: false,
