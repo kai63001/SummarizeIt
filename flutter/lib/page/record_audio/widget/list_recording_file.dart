@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:sumarizeit/page/record_audio/play_audio_page.dart';
 import 'package:sumarizeit/store/recording_store.dart';
 
 class CustomBottomSheet extends StatelessWidget {
@@ -45,9 +47,12 @@ class CustomBottomSheet extends StatelessWidget {
                             trailing: const Icon(Icons.info),
                             contentPadding: const EdgeInsets.symmetric(
                                 horizontal: 20, vertical: 5),
-                            onTap: () => Navigator.pushNamed(
-                                parentContext, '/record-audio',
-                                arguments: state[index]['path'] ?? 'No path'));
+                            onTap: () => {
+                                  HapticFeedback.heavyImpact(),
+                                  Navigator.of(context).push(MaterialPageRoute(
+                                      builder: (context) => PlayAudioPage(
+                                          audioPath: state[index]['path']))),
+                                });
                       },
                     );
                   },

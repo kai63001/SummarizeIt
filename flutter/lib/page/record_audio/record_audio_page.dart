@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
@@ -25,6 +24,7 @@ class _RecordAudioPageState extends State<RecordAudioPage> {
   final player = AudioPlayer();
   String _nameFile = 'RecordingFile';
   Timer? _timer;
+  String _path = '';
   int _recordDuration = 0;
   StreamSubscription<RecordState>? _recordSub;
   RecordState _recordState = RecordState.stop;
@@ -44,7 +44,6 @@ class _RecordAudioPageState extends State<RecordAudioPage> {
         .onAmplitudeChanged(const Duration(milliseconds: 300))
         .listen((amp) {});
 
-    getFileAllInPath();
     _generateFileName();
 
     //Notification
@@ -59,16 +58,18 @@ class _RecordAudioPageState extends State<RecordAudioPage> {
     flutterLocalNotificationsPlugin.initialize(initializationSettings);
   }
 
-  void _generateFileName() {
+  Future<void> _generateFileName() async {
     final now = DateTime.now();
+    final pathName = await _getPath();
     setState(() {
       _nameFile =
           'Recording_${now.day}${now.month}${now.year}${now.hour}${now.minute}${now.second}';
       _controllerTextName.text = _nameFile;
+      _path = pathName;
     });
   }
 
-  void _updateRecordState(RecordState recordState) {
+  Future<void> _updateRecordState(RecordState recordState) async {
     setState(() => _recordState = recordState);
 
     switch (recordState) {
@@ -79,11 +80,12 @@ class _RecordAudioPageState extends State<RecordAudioPage> {
         _startTimer();
         break;
       case RecordState.stop:
-      context
-          .read<RecordingStore>()
-          .add('{"name":"$_nameFile", "duration":"$_recordDuration", "date":"${DateTime.now()}"}');
+        context.read<RecordingStore>().add(
+            '{"name":"$_nameFile", "duration":"$_recordDuration", "date":"${DateTime.now()}", "path":"$_path"}');
         _timer?.cancel();
         _recordDuration = 0;
+        _generateFileName();
+        removeNotification();
         break;
     }
   }
@@ -121,22 +123,6 @@ class _RecordAudioPageState extends State<RecordAudioPage> {
     _timer = Timer.periodic(const Duration(seconds: 1), (Timer t) {
       setState(() => _recordDuration++);
     });
-  }
-
-  Future<void> getFileAllInPath() async {
-    final directory = await getApplicationDocumentsDirectory();
-    final path = directory.path;
-    final files = Directory(path).listSync();
-    print(files);
-
-    // file name is 'Recording_day_month_year_time.m4a'
-    // setState(() {
-    //   _nameFile = files[0].path.split('/').last;
-    // });
-
-    //get file size
-    //play audio
-    // await player.play(DeviceFileSource('/var/mobile/Containers/Data/Application/A2BF620E-2EE3-46E2-980B-C33F5272216D/Documents/romeo.m4a'));
   }
 
   Future<void> startRecording() async {
@@ -194,10 +180,6 @@ class _RecordAudioPageState extends State<RecordAudioPage> {
 
   Future<void> stopRecording() async {
     await _audioRecorder.stop();
-    _generateFileName();
-    removeNotification();
-
-   
   }
 
   Future<void> pauseRecording() async {
@@ -224,45 +206,45 @@ class _RecordAudioPageState extends State<RecordAudioPage> {
 
   @override
   Widget build(BuildContext context) {
+    double screenHeight = MediaQuery.of(context).size.height;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Audio Recorder'),
-        // action for show bottom sheet about list of recording file
         actions: [CustomBottomSheet(parentContext: context)],
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            TextField(
-              controller: _controllerTextName,
-              readOnly: _recordState != RecordState.stop,
-              decoration: const InputDecoration(
-                hintText: 'File name',
-                border: InputBorder.none,
-              ),
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 20,
-              ),
-              onChanged: (value) {
-                setState(() {
-                  _nameFile = value;
-                });
-              },
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: <Widget>[
+          SizedBox(height: screenHeight * 0.1),
+          TextField(
+            controller: _controllerTextName,
+            readOnly: _recordState != RecordState.stop,
+            decoration: const InputDecoration(
+              hintText: 'File name',
+              border: InputBorder.none,
             ),
-            const SizedBox(height: 100),
-            if (_recordState == RecordState.record ||
-                _recordState == RecordState.pause)
-              _buildTimer(),
-            if (_recordState == RecordState.record ||
-                _recordState == RecordState.pause)
-              const SizedBox(height: 20),
-            _controller(),
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 20,
+            ),
+            onChanged: (value) {
+              setState(() {
+                _nameFile = value;
+              });
+            },
+          ),
+          const SizedBox(height: 100),
+          if (_recordState == RecordState.record ||
+              _recordState == RecordState.pause)
+            _buildTimer(),
+          if (_recordState == RecordState.record ||
+              _recordState == RecordState.pause)
             const SizedBox(height: 20),
-          ],
-        ),
+          _controller(),
+          const SizedBox(height: 20),
+        ],
       ),
     );
   }
