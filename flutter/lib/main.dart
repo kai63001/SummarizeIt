@@ -33,7 +33,8 @@ class MyApp extends StatelessWidget {
           BlocProvider(create: (context) => DeviceIdStore()),
         ],
         child: MaterialApp(
-          title: '',
+          debugShowCheckedModeBanner: false,
+          title: 'Sumarize It!',
           theme: ThemeData(
             colorScheme: ColorScheme.fromSeed(
               surfaceVariant: Colors.transparent,

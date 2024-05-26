@@ -3,6 +3,8 @@ import 'dart:io';
 
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:record/record.dart';
 // ignore: depend_on_referenced_packages
@@ -18,11 +20,15 @@ class RecordAudioPage extends StatefulWidget {
 class _RecordAudioPageState extends State<RecordAudioPage> {
   late final AudioRecorder _audioRecorder;
   final player = AudioPlayer();
+  String _nameFile = 'RecordingFile';
   Timer? _timer;
   int _recordDuration = 0;
   StreamSubscription<RecordState>? _recordSub;
   RecordState _recordState = RecordState.stop;
   StreamSubscription<Amplitude>? _amplitudeSub;
+  final _controllerTextName = TextEditingController(text: 'RecordingFile');
+  late FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
+  static const platform = MethodChannel('com.summarize.it/notifications');
 
   @override
   void initState() {
@@ -37,7 +43,45 @@ class _RecordAudioPageState extends State<RecordAudioPage> {
         .listen((amp) {});
 
     getFileAllInPath();
+    _generateFileName();
+
+    //Notification
+    var initializationSettingsAndroid =
+        const AndroidInitializationSettings('@mipmap/ic_launcher');
+    var initializationSettingsIOS = const DarwinInitializationSettings();
+    var initializationSettings = InitializationSettings(
+      android: initializationSettingsAndroid,
+      iOS: initializationSettingsIOS,
+    );
+    flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+    flutterLocalNotificationsPlugin.initialize(initializationSettings);
   }
+
+
+  void _generateFileName() {
+    final now = DateTime.now();
+    setState(() {
+      _nameFile =
+          'Recording_${now.day}${now.month}${now.year}${now.hour}${now.minute}${now.second}';
+      _controllerTextName.text = _nameFile;
+    });
+  }
+
+  // void startRecording() async {
+  //   try {
+  //     await platform.invokeMethod('startRecording');
+  //   } on PlatformException catch (e) {
+  //     print("Failed to start recording: '${e.message}'.");
+  //   }
+  // }
+
+  // void stopRecording() async {
+  //   try {
+  //     await platform.invokeMethod('stopRecording');
+  //   } on PlatformException catch (e) {
+  //     print("Failed to stop recording: '${e.message}'.");
+  //   }
+  // }
 
   void _updateRecordState(RecordState recordState) {
     setState(() => _recordState = recordState);
@@ -56,6 +100,33 @@ class _RecordAudioPageState extends State<RecordAudioPage> {
     }
   }
 
+  Future<void> showPersistentNotification() async {
+    var androidPlatformChannelSpecifics = const AndroidNotificationDetails(
+      'your_channel_id',
+      'your_channel_name',
+      importance: Importance.max,
+      priority: Priority.high,
+      ongoing: true, // This makes the notification persistent
+      autoCancel: false, // Prevents the user from swiping away the notification
+    );
+    var iOSPlatformChannelSpecifics = const DarwinNotificationDetails(
+      presentAlert: true,
+      presentBadge: true,
+      presentSound: true,
+    );
+    var platformChannelSpecifics = NotificationDetails(
+      android: androidPlatformChannelSpecifics,
+      iOS: iOSPlatformChannelSpecifics,
+    );
+    await flutterLocalNotificationsPlugin.show(
+      0,
+      'Timer Running',
+      'Your timer is running',
+      platformChannelSpecifics,
+      payload: 'stop',
+    );
+  }
+
   void _startTimer() {
     _timer?.cancel();
 
@@ -69,6 +140,12 @@ class _RecordAudioPageState extends State<RecordAudioPage> {
     final path = directory.path;
     final files = Directory(path).listSync();
     print(files);
+
+    // file name is 'Recording_day_month_year_time.m4a'
+    // setState(() {
+    //   _nameFile = files[0].path.split('/').last;
+    // });
+
     //get file size
     //play audio
     // await player.play(DeviceFileSource('/var/mobile/Containers/Data/Application/A2BF620E-2EE3-46E2-980B-C33F5272216D/Documents/romeo.m4a'));
@@ -76,6 +153,12 @@ class _RecordAudioPageState extends State<RecordAudioPage> {
 
   Future<void> startRecording() async {
     if (await _audioRecorder.hasPermission()) {
+      showPersistentNotification();
+      // try {
+      //   showPersistentNotification();
+      // } on PlatformException catch (e) {
+      //   print("Failed to start recording: '${e.message}'.");
+      // }
       // Start recording to file
       const encoder = AudioEncoder.aacLc;
 
@@ -103,7 +186,7 @@ class _RecordAudioPageState extends State<RecordAudioPage> {
     final dir = await getApplicationDocumentsDirectory();
     return p.join(
       dir.path,
-      'audio_${DateTime.now().millisecondsSinceEpoch}.m4a',
+      '$_nameFile.m4a',
     );
   }
 
@@ -128,6 +211,8 @@ class _RecordAudioPageState extends State<RecordAudioPage> {
 
   Future<void> stopRecording() async {
     await _audioRecorder.stop();
+    _generateFileName();
+    removeNotification();
   }
 
   Future<void> pauseRecording() async {
@@ -138,12 +223,17 @@ class _RecordAudioPageState extends State<RecordAudioPage> {
     await _audioRecorder.resume();
   }
 
+  void removeNotification() async {
+    await flutterLocalNotificationsPlugin.cancel(0);
+  }
+
   @override
   void dispose() {
     _timer?.cancel();
     _recordSub?.cancel();
     _amplitudeSub?.cancel();
     _audioRecorder.dispose();
+    removeNotification();
     super.dispose();
   }
 
@@ -157,7 +247,31 @@ class _RecordAudioPageState extends State<RecordAudioPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            if (_recordState == RecordState.record) _buildTimer(),
+            TextField(
+              controller: _controllerTextName,
+              readOnly: _recordState != RecordState.stop,
+              decoration: const InputDecoration(
+                hintText: 'File name',
+                border: InputBorder.none,
+              ),
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 20,
+              ),
+              onChanged: (value) {
+                setState(() {
+                  _nameFile = value;
+                });
+              },
+            ),
+            const SizedBox(height: 100),
+            if (_recordState == RecordState.record ||
+                _recordState == RecordState.pause)
+              _buildTimer(),
+            if (_recordState == RecordState.record ||
+                _recordState == RecordState.pause)
+              const SizedBox(height: 20),
             _controller(),
             const SizedBox(height: 20),
           ],
@@ -172,19 +286,42 @@ class _RecordAudioPageState extends State<RecordAudioPage> {
       children: [
         if (_recordState == RecordState.stop) _micDisplay(),
         if (_recordState == RecordState.record)
-          IconButton(
-            icon: const Icon(Icons.pause),
-            onPressed: pauseRecording,
+          Container(
+            margin: const EdgeInsets.only(right: 20),
+            decoration: BoxDecoration(
+              color: const Color(0xFFFFD789),
+              borderRadius: BorderRadius.circular(200),
+            ),
+            child: IconButton(
+              icon: const Icon(Icons.pause, color: Colors.black),
+              onPressed: pauseRecording,
+            ),
           ),
         if (_recordState == RecordState.pause)
-          IconButton(
-            icon: const Icon(Icons.play_arrow),
-            onPressed: resumeRecording,
+          Container(
+            margin: const EdgeInsets.only(right: 20),
+            decoration: BoxDecoration(
+              color: const Color(0xFFFFD789),
+              borderRadius: BorderRadius.circular(200),
+            ),
+            child: IconButton(
+              icon: const Icon(
+                Icons.play_arrow,
+                color: Colors.black,
+              ),
+              onPressed: resumeRecording,
+            ),
           ),
         if (_recordState != RecordState.stop)
-          IconButton(
-            icon: const Icon(Icons.stop),
-            onPressed: stopRecording,
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.red,
+              borderRadius: BorderRadius.circular(200),
+            ),
+            child: IconButton(
+              icon: const Icon(Icons.stop),
+              onPressed: stopRecording,
+            ),
           )
       ],
     );
@@ -193,35 +330,35 @@ class _RecordAudioPageState extends State<RecordAudioPage> {
   Widget _micDisplay() {
     return Column(
       children: [
-        Container(
-          decoration: BoxDecoration(
-            color: Color.fromARGB(255, 33, 28, 20),
-            borderRadius: BorderRadius.circular(200),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(40.0),
-            child: Container(
-              decoration: BoxDecoration(
-                color: const Color.fromARGB(255, 59, 50, 34),
-                borderRadius: BorderRadius.circular(100),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(25.0),
-                child: Container(
-                  // background color and padding
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFFFD789),
-                    borderRadius: BorderRadius.circular(100),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(30.0),
-                    child: IconButton(
-                      icon: const Icon(
+        GestureDetector(
+          onTap: startRecording,
+          child: Container(
+            decoration: BoxDecoration(
+              color: const Color.fromARGB(255, 33, 28, 20),
+              borderRadius: BorderRadius.circular(200),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(40.0),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: const Color.fromARGB(255, 59, 50, 34),
+                  borderRadius: BorderRadius.circular(100),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(25.0),
+                  child: Container(
+                    // background color and padding
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFFD789),
+                      borderRadius: BorderRadius.circular(100),
+                    ),
+                    child: const Padding(
+                      padding: EdgeInsets.all(30.0),
+                      child: Icon(
                         Icons.mic,
+                        size: 50,
                         color: Colors.black,
-                        size: 40,
                       ),
-                      onPressed: startRecording,
                     ),
                   ),
                 ),
@@ -244,7 +381,7 @@ class _RecordAudioPageState extends State<RecordAudioPage> {
 
     return Text(
       '$minutes : $seconds',
-      style: const TextStyle(color: Colors.red),
+      style: const TextStyle(color: Colors.white, fontSize: 40),
     );
   }
 

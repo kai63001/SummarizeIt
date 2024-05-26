@@ -51,6 +51,8 @@ dependencies:
   http_parser: ^4.0.2
   mime_type: ^1.0.0
   audioplayers: ^6.0.0
+  flutter_local_notifications: ^17.1.2
+  workmanager: ^0.5.2
 
 dev_dependencies:
   flutter_test:
