@@ -319,7 +319,10 @@ class _PurchaseModalState extends State<PurchaseModal> {
                           onPressed: () => {},
                           child: const Text(
                             'Subscribe',
-                            style: TextStyle(fontSize: 20, color: Colors.black),
+                            style: TextStyle(
+                                fontSize: 20,
+                                color: Colors.black,
+                                fontWeight: FontWeight.bold),
                           ),
                         ),
                       ),

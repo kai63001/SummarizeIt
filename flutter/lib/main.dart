@@ -43,7 +43,6 @@ class MyApp extends StatelessWidget {
               seedColor: const Color(0xFF282834),
               primary: const Color(0xFFFFD789),
               background: const Color(0xFF14141A),
-              // ···
               brightness: Brightness.dark,
             ),
             useMaterial3: true,
