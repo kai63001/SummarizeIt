@@ -38,7 +38,6 @@ dependencies:
   http: ^1.2.1
   flutter_secure_storage: ^9.1.1
   haptic_feedback: ^0.4.2
-  in_app_purchase: ^3.2.0
   quickalert: ^1.1.0
   shared_preferences: ^2.2.3
   intl: ^0.19.0
@@ -54,6 +53,8 @@ dependencies:
   flutter_local_notifications: ^17.1.2
   workmanager: ^0.5.2
   toastification: ^2.0.0
+  purchases_flutter: ^6.29.2
+  purchases_ui_flutter: ^6.29.2
 
 dev_dependencies:
   flutter_test:

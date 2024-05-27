@@ -296,6 +296,14 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  freezed_annotation:
+    dependency: transitive
+    description:
+      name: freezed_annotation
+      sha256: c3fd9336eb55a38cc1bbd79ab17573113a8deccd0ecbbf926cca3c62803b5c2d
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.4.1"
   haptic_feedback:
     dependency: "direct main"
     description:
@@ -328,38 +336,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.0"
-  in_app_purchase:
-    dependency: "direct main"
-    description:
-      name: in_app_purchase
-      sha256: "960f26a08d9351fb8f89f08901f8a829d41b04d45a694b8f776121d9e41dcad6"
-      url: "https://pub.dev"
-    source: hosted
-    version: "3.2.0"
-  in_app_purchase_android:
-    dependency: transitive
-    description:
-      name: in_app_purchase_android
-      sha256: bc4e58e8bd9f1027ca869f419737773bdf80ad36074037fa8ed81e5ca15dc655
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.3.5+1"
-  in_app_purchase_platform_interface:
-    dependency: transitive
-    description:
-      name: in_app_purchase_platform_interface
-      sha256: "1d353d38251da5b9fea6635c0ebfc6bb17a2d28d0e86ea5e083bf64244f1fb4c"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.4.0"
-  in_app_purchase_storekit:
-    dependency: transitive
-    description:
-      name: in_app_purchase_storekit
-      sha256: "3eea5e173fca0a59ab2fcec5201bea14bb808dfad01004d2b1d7bfdb9244c5e6"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.3.16"
   intl:
     dependency: "direct main"
     description:
@@ -552,6 +528,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "6.1.2"
+  purchases_flutter:
+    dependency: "direct main"
+    description:
+      name: purchases_flutter
+      sha256: "997179d473b43e95f9ab51c586ec336a4f6e9dc7db290c9ed975271f68bbfd0e"
+      url: "https://pub.dev"
+    source: hosted
+    version: "6.29.2"
+  purchases_ui_flutter:
+    dependency: "direct main"
+    description:
+      name: purchases_ui_flutter
+      sha256: "264b2aad89a0779a4d1e21cb86598591ad3c60d9a4b81564b86d663d4001d09b"
+      url: "https://pub.dev"
+    source: hosted
+    version: "6.29.2"
   quickalert:
     dependency: "direct main"
     description:

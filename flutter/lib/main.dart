@@ -2,19 +2,24 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+import 'package:purchases_flutter/purchases_flutter.dart';
+import 'package:purchases_ui_flutter/purchases_ui_flutter.dart';
 import 'package:sumarizeit/page/history/history_page.dart';
 import 'package:sumarizeit/page/record_audio/record_audio_page.dart';
 import 'package:sumarizeit/page/summary_done.dart';
 import 'package:sumarizeit/page/text_summary/text_summary_page.dart';
 import 'package:sumarizeit/page/youtube_summary/youtube_summary_page.dart';
-import 'package:sumarizeit/purchase/purchase_modal.dart';
 import 'package:sumarizeit/store/deviceId_store.dart';
 import 'package:sumarizeit/store/history_store.dart';
 import 'package:sumarizeit/store/recording_store.dart';
 import 'package:sumarizeit/store/saved_time_store.dart';
 
-void main() {
+final _configuration =
+    PurchasesConfiguration("appl_pwKTuHxkhdQZXeXPFOePdNwPakZ");
+
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Purchases.configure(_configuration);
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp])
       .then((_) {
     runApp(const MyApp());
@@ -119,10 +124,12 @@ class _MyHomePageState extends State<MyHomePage> {
                       borderRadius: BorderRadius.circular(50),
                     ),
                     child: IconButton(
-                      onPressed: () {
+                      onPressed: () async {
                         HapticFeedback.heavyImpact();
-                        Navigator.of(context).push(MaterialPageRoute(
-                            builder: (context) => const PurchaseModal()));
+                        // Navigator.of(context).push(MaterialPageRoute(
+                        //     builder: (context) => const PurchaseModal()));
+                        final paywallResult = await RevenueCatUI.presentPaywallIfNeeded("pro");
+                        print("paywallResult: $paywallResult");
                       },
                       icon: const Icon(Icons.star_rounded,
                           color: Color(0xFFFFD789)),
