@@ -11,6 +11,7 @@ import 'package:sumarizeit/page/text_summary/text_summary_page.dart';
 import 'package:sumarizeit/page/youtube_summary/youtube_summary_page.dart';
 import 'package:sumarizeit/store/deviceId_store.dart';
 import 'package:sumarizeit/store/history_store.dart';
+import 'package:sumarizeit/store/purchase_store.dart';
 import 'package:sumarizeit/store/recording_store.dart';
 import 'package:sumarizeit/store/saved_time_store.dart';
 
@@ -38,6 +39,7 @@ class MyApp extends StatelessWidget {
           BlocProvider(create: (context) => HistoryStore()),
           BlocProvider(create: (context) => DeviceIdStore()),
           BlocProvider(create: (context) => RecordingStore()),
+          BlocProvider(create: (context) => PurchaseStore()),
         ],
         child: MaterialApp(
           debugShowCheckedModeBanner: false,
@@ -70,6 +72,11 @@ class _MyHomePageState extends State<MyHomePage> {
   void initState() {
     super.initState();
     getDeviceId();
+    getPurchaseStatus();
+  }
+
+  void getPurchaseStatus() async {
+    context.read<PurchaseStore>().initPurchaseStore();
   }
 
   void getDeviceId() async {
@@ -128,7 +135,8 @@ class _MyHomePageState extends State<MyHomePage> {
                         HapticFeedback.heavyImpact();
                         // Navigator.of(context).push(MaterialPageRoute(
                         //     builder: (context) => const PurchaseModal()));
-                        final paywallResult = await RevenueCatUI.presentPaywallIfNeeded("pro");
+                        final paywallResult =
+                            await RevenueCatUI.presentPaywallIfNeeded("pro");
                         print("paywallResult: $paywallResult");
                       },
                       icon: const Icon(Icons.star_rounded,
