@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:quickalert/models/quickalert_type.dart';
+import 'package:quickalert/widgets/quickalert_dialog.dart';
 
 class PlayAudioPage extends StatefulWidget {
   final String audioPath;
@@ -76,6 +78,128 @@ class _PlayAudioPageState extends State<PlayAudioPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Play Audio'),
+        //option
+        actions: [
+          IconButton(
+            onPressed: () {
+              showModalBottomSheet(
+                context: context,
+                isScrollControlled: true,
+                backgroundColor: Colors.transparent,
+                builder: (context) {
+                  return DraggableScrollableSheet(
+                      initialChildSize: 0.3, // Initial height of the Sheet
+                      minChildSize: 0.1, // Minimum height of the Sheet
+                      maxChildSize: 1, // Maximum height of the Sheet
+                      builder: (BuildContext context,
+                          ScrollController scrollController) {
+                        return ClipRRect(
+                          borderRadius: const BorderRadius.only(
+                            topLeft: Radius.circular(20),
+                            topRight: Radius.circular(20),
+                          ),
+                          child: Container(
+                            color: const Color(0xFF14141A),
+                            child: Column(
+                              children: [
+                                // Custom drag handle
+                                Container(
+                                  margin: const EdgeInsets.all(10),
+                                  height: 5,
+                                  width: 30,
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey[
+                                        300], // Change this to your desired color
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                ),
+                                GestureDetector(
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Container(
+                                        decoration: const BoxDecoration(
+                                          color:
+                                              Color.fromARGB(255, 43, 43, 54),
+                                          borderRadius: BorderRadius.all(
+                                              Radius.circular(10)),
+                                        ),
+                                        child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.start,
+                                            children: [
+                                              IconButton(
+                                                onPressed: () {
+                                                  Navigator.pop(context);
+                                                  _pauseAudio();
+                                                },
+                                                icon: const Icon(
+                                                    Icons.short_text_outlined),
+                                              ),
+                                              const Text(
+                                                'Summary this audio',
+                                                style: TextStyle(
+                                                    color: Colors.white,
+                                                    fontWeight:
+                                                        FontWeight.bold),
+                                              )
+                                            ])),
+                                  ),
+                                ),
+                                GestureDetector(
+                                  onTap: () => {
+                                    QuickAlert.show(
+                                      context: context,
+                                      type: QuickAlertType.confirm,
+                                      text: 'Do you want to delete this audio?',
+                                      confirmBtnText: 'Yes',
+                                      cancelBtnText: 'No',
+                                      confirmBtnColor: Colors.green,
+                                      onConfirmBtnTap: () => {
+                                        print('Delete audio'),
+                                      },
+                                    )
+                                  },
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Container(
+                                        decoration: const BoxDecoration(
+                                          color:
+                                              Color.fromARGB(255, 43, 43, 54),
+                                          borderRadius: BorderRadius.all(
+                                              Radius.circular(10)),
+                                        ),
+                                        child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.start,
+                                            children: [
+                                              IconButton(
+                                                onPressed: () {
+                                                  Navigator.pop(context);
+                                                  _pauseAudio();
+                                                },
+                                                icon: const Icon(Icons.delete),
+                                              ),
+                                              const Text(
+                                                'Delete',
+                                                style: TextStyle(
+                                                    color: Colors.white,
+                                                    fontWeight:
+                                                        FontWeight.bold),
+                                              )
+                                            ])),
+                                  ),
+                                )
+                              ],
+                            ),
+                          ),
+                        );
+                      });
+                },
+              );
+            },
+            icon: const Icon(Icons.menu),
+          ),
+        ],
       ),
       body: Center(
         child: Column(
@@ -118,30 +242,38 @@ class _PlayAudioPageState extends State<PlayAudioPage> {
 
   Widget _controllerAudio() {
     if (isPlaying) {
-      return Container(
-        decoration: BoxDecoration(
-          color: const Color(0xFFFFD789),
-          borderRadius: BorderRadius.circular(50),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: IconButton(
-            onPressed: _pauseAudio,
-            icon: const Icon(Icons.pause, color: Colors.black),
+      return GestureDetector(
+        onTap: _pauseAudio,
+        child: Container(
+          decoration: BoxDecoration(
+            color: const Color(0xFFFFD789),
+            borderRadius: BorderRadius.circular(50),
+          ),
+          child: const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+            child: Icon(
+              Icons.pause,
+              color: Colors.black,
+              size: 40,
+            ),
           ),
         ),
       );
     } else {
-      return Container(
-        decoration: BoxDecoration(
-          color: const Color(0xFFFFD789),
-          borderRadius: BorderRadius.circular(50),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: IconButton(
-            onPressed: _playAudio,
-            icon: const Icon(Icons.play_arrow, color: Colors.black),
+      return GestureDetector(
+        onTap: _playAudio,
+        child: Container(
+          decoration: BoxDecoration(
+            color: const Color(0xFFFFD789),
+            borderRadius: BorderRadius.circular(50),
+          ),
+          child: const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+            child: Icon(
+              Icons.play_arrow,
+              color: Colors.black,
+              size: 40,
+            ),
           ),
         ),
       );
