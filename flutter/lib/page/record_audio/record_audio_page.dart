@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -21,7 +20,6 @@ class RecordAudioPage extends StatefulWidget {
 
 class _RecordAudioPageState extends State<RecordAudioPage> {
   late final AudioRecorder _audioRecorder;
-  final player = AudioPlayer();
   String _nameFile = 'RecordingFile';
   Timer? _timer;
   String _path = '';
@@ -60,12 +58,10 @@ class _RecordAudioPageState extends State<RecordAudioPage> {
 
   Future<void> _generateFileName() async {
     final now = DateTime.now();
-    final pathName = await _getPath();
     setState(() {
       _nameFile =
           'Recording_${now.day}${now.month}${now.year}${now.hour}${now.minute}${now.second}';
       _controllerTextName.text = _nameFile;
-      _path = pathName;
     });
   }
 
@@ -147,6 +143,10 @@ class _RecordAudioPageState extends State<RecordAudioPage> {
 
   Future<void> recordFile(AudioRecorder recorder, RecordConfig config) async {
     final path = await _getPath();
+
+    setState(() {
+      _path = path;
+    });
 
     await recorder.start(config, path: path);
   }
