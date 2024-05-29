@@ -1,5 +1,5 @@
 import { Service } from 'typedi';
-import OpenAI from 'openai';
+import OpenAI, { toFile } from 'openai';
 import { OPENAI_API_KEY } from '@/config';
 import { jsonrepair } from 'jsonrepair';
 import { logger } from '@/utils/logger';
@@ -84,5 +84,15 @@ export class OpenAIService {
     //log token usage
     logger.info(`Token usage: ${completion.usage.total_tokens}`);
     return output;
+  }
+
+  public async getAudioTranscription(audio: Buffer): Promise<any> {
+    const file = await toFile(Buffer.from(audio), 'audio.mp3');
+    const transcription = await this.openai.audio.transcriptions.create({
+      file: file,
+      model: 'whisper-1',
+    });
+
+    return transcription;
   }
 }

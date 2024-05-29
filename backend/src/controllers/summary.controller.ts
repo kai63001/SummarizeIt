@@ -3,6 +3,12 @@ import { NextFunction, Request, Response } from 'express';
 import { Container } from 'typedi';
 import { SummaryModel } from '@/models/summary.model';
 
+declare module 'express-serve-static-core' {
+  interface Request {
+    file: any;
+  }
+}
+
 export class SummaryController {
   public summary = Container.get(SummaryService);
 
@@ -60,6 +66,22 @@ export class SummaryController {
       const data = await this.summary.getYoutubeData(url);
 
       res.status(200).json({ data, message: 'summary' });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  public audioSummary = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const file = req.file;
+
+      if (!file) {
+        throw new Error('Audio file is required');
+      }
+
+      const summary = await this.summary.audioSummary(file.buffer, 'device-id');
+
+      res.status(200).json({ data: summary, message: 'summary' });
     } catch (error) {
       next(error);
     }
