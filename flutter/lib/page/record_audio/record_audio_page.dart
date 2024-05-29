@@ -76,8 +76,9 @@ class _RecordAudioPageState extends State<RecordAudioPage> {
         _startTimer();
         break;
       case RecordState.stop:
+        String randomUUID = DateTime.now().millisecondsSinceEpoch.toString();
         context.read<RecordingStore>().add(
-            '{"name":"$_nameFile", "duration":"$_recordDuration", "date":"${DateTime.now()}", "path":"$_path"}');
+            '{"id": "$randomUUID","name":"$_nameFile", "duration":"$_recordDuration", "date":"${DateTime.now()}", "path":"$_path"}');
         _timer?.cancel();
         _recordDuration = 0;
         _generateFileName();

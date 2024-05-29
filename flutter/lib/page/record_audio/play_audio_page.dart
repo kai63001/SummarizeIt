@@ -2,17 +2,21 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:quickalert/models/quickalert_type.dart';
 import 'package:quickalert/widgets/quickalert_dialog.dart';
+import 'package:sumarizeit/store/recording_store.dart';
 
 class PlayAudioPage extends StatefulWidget {
   final String audioPath;
   final String duration;
   final String name;
+  final String id;
   const PlayAudioPage(
       {super.key,
       required this.audioPath,
       required this.duration,
+      required this.id,
       required this.name});
 
   @override
@@ -155,7 +159,13 @@ class _PlayAudioPageState extends State<PlayAudioPage> {
                                       cancelBtnText: 'No',
                                       confirmBtnColor: Colors.green,
                                       onConfirmBtnTap: () => {
-                                        print('Delete audio'),
+                                        Navigator.pop(context),
+                                        context
+                                            .read<RecordingStore>()
+                                            .deleteRecording(widget.id),
+                                        //pop 2 times to close the bottom sheet
+                                        Navigator.pop(context),
+                                        Navigator.pop(context),
                                       },
                                     )
                                   },

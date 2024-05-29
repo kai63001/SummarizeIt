@@ -51,6 +51,7 @@ class CustomBottomSheet extends StatelessWidget {
                                   HapticFeedback.heavyImpact(),
                                   Navigator.of(context).push(MaterialPageRoute(
                                       builder: (context) => PlayAudioPage(
+                                            id: state[index]['id'],
                                             name: state[index]['name'] ??
                                                 'No title',
                                             audioPath: state[index]['path'],
