@@ -180,7 +180,9 @@ class _RecordAudioPageState extends State<RecordAudioPage> {
   }
 
   Future<void> stopRecording() async {
-    await _audioRecorder.stop();
+    String? audioPath = await _audioRecorder.stop();
+    // log
+    debugPrint('Audio file saved at $audioPath');
   }
 
   Future<void> pauseRecording() async {

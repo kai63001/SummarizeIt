@@ -12,7 +12,7 @@ import 'dart:convert';
 class SummaryDone extends StatefulWidget {
   const SummaryDone(
       {super.key,
-      required this.text,
+      this.text = '',
       required this.type,
       this.title = '',
       this.done = false,
@@ -103,6 +103,9 @@ class _SummaryDoneState extends State<SummaryDone>
     if (widget.type == 'text-summary') {
       api = Uri.parse('$apiUrl/summary/text-summary');
       body = {'text': widget.text, 'deviceId': deviceId};
+    } else if (widget.type == 'audio-summary') {
+      api = Uri.parse('$apiUrl/summary/audio-summary');
+      body = {'url': widget.text, 'deviceId': deviceId};
     } else {
       api = Uri.parse('$apiUrl/summary/youtube-summary');
       body = {'url': widget.text, 'deviceId': deviceId};

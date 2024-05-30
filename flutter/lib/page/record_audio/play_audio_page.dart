@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:quickalert/models/quickalert_type.dart';
 import 'package:quickalert/widgets/quickalert_dialog.dart';
@@ -118,6 +119,10 @@ class _PlayAudioPageState extends State<PlayAudioPage> {
                                   ),
                                 ),
                                 GestureDetector(
+                                  onTap: () => {
+                                    HapticFeedback.heavyImpact(),
+                                    Navigator.pop(context),
+                                  },
                                   child: Padding(
                                     padding: const EdgeInsets.all(8.0),
                                     child: Container(
@@ -132,10 +137,7 @@ class _PlayAudioPageState extends State<PlayAudioPage> {
                                                 MainAxisAlignment.start,
                                             children: [
                                               IconButton(
-                                                onPressed: () {
-                                                  Navigator.pop(context);
-                                                  _pauseAudio();
-                                                },
+                                                onPressed: () {},
                                                 icon: const Icon(
                                                     Icons.short_text_outlined),
                                               ),
@@ -151,6 +153,7 @@ class _PlayAudioPageState extends State<PlayAudioPage> {
                                 ),
                                 GestureDetector(
                                   onTap: () => {
+                                    HapticFeedback.heavyImpact(),
                                     QuickAlert.show(
                                       context: context,
                                       type: QuickAlertType.confirm,
@@ -159,6 +162,8 @@ class _PlayAudioPageState extends State<PlayAudioPage> {
                                       cancelBtnText: 'No',
                                       confirmBtnColor: Colors.green,
                                       onConfirmBtnTap: () => {
+                                        HapticFeedback.heavyImpact(),
+                                        _pauseAudio(),
                                         Navigator.pop(context),
                                         context
                                             .read<RecordingStore>()
@@ -183,10 +188,7 @@ class _PlayAudioPageState extends State<PlayAudioPage> {
                                                 MainAxisAlignment.start,
                                             children: [
                                               IconButton(
-                                                onPressed: () {
-                                                  Navigator.pop(context);
-                                                  _pauseAudio();
-                                                },
+                                                onPressed: () {},
                                                 icon: const Icon(Icons.delete),
                                               ),
                                               const Text(
