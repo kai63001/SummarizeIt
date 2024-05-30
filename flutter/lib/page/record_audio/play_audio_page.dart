@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:quickalert/models/quickalert_type.dart';
 import 'package:quickalert/widgets/quickalert_dialog.dart';
+import 'package:sumarizeit/page/summary_done.dart';
 import 'package:sumarizeit/store/recording_store.dart';
 
 class PlayAudioPage extends StatefulWidget {
@@ -122,6 +123,15 @@ class _PlayAudioPageState extends State<PlayAudioPage> {
                                   onTap: () => {
                                     HapticFeedback.heavyImpact(),
                                     Navigator.pop(context),
+                                    Navigator.pushAndRemoveUntil(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => SummaryDone(
+                                            pathAudioFile: widget.audioPath,
+                                            type: 'audio-summary'),
+                                      ),
+                                      (Route<dynamic> route) => route.isFirst,
+                                    )
                                   },
                                   child: Padding(
                                     padding: const EdgeInsets.all(8.0),

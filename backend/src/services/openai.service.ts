@@ -87,7 +87,7 @@ export class OpenAIService {
   }
 
   public async getAudioTranscription(audio: Buffer): Promise<any> {
-    const file = await toFile(Buffer.from(audio), 'audio.mp3');
+    const file = await toFile(Buffer.from(audio), 'audio.m4a');
     const transcription = await this.openai.audio.transcriptions.create({
       file: file,
       model: 'whisper-1',

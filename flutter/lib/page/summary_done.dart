@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:http/http.dart' as http;
+import 'package:http_parser/http_parser.dart';
 import 'package:quickalert/models/quickalert_type.dart';
 import 'package:quickalert/widgets/quickalert_dialog.dart';
 import 'package:sumarizeit/store/deviceId_store.dart';
@@ -16,11 +17,13 @@ class SummaryDone extends StatefulWidget {
       required this.type,
       this.title = '',
       this.done = false,
+      this.pathAudioFile = '',
       this.historyId = ''});
 
   final String text;
   final String type;
   final String title;
+  final String pathAudioFile;
   final bool done;
   final String historyId;
 
@@ -90,6 +93,8 @@ class _SummaryDoneState extends State<SummaryDone>
       _getHistoryById();
       return;
     }
+    http.Response response;
+
     String deviceId = context.read<DeviceIdStore>().state;
     if (deviceId.isEmpty) {
       QuickAlert.show(
@@ -103,18 +108,26 @@ class _SummaryDoneState extends State<SummaryDone>
     if (widget.type == 'text-summary') {
       api = Uri.parse('$apiUrl/summary/text-summary');
       body = {'text': widget.text, 'deviceId': deviceId};
+      response = await http.post(
+        api,
+        body: body,
+      );
     } else if (widget.type == 'audio-summary') {
       api = Uri.parse('$apiUrl/summary/audio-summary');
-      body = {'url': widget.text, 'deviceId': deviceId};
+      var request = http.MultipartRequest('POST', api);
+      request.fields['deviceId'] = deviceId;
+      request.files.add(await http.MultipartFile.fromPath(
+          'audio', widget.pathAudioFile,
+          contentType: MediaType('audio', 'm4a')));
+      response = await http.Response.fromStream(await request.send());
     } else {
       api = Uri.parse('$apiUrl/summary/youtube-summary');
       body = {'url': widget.text, 'deviceId': deviceId};
+      response = await http.post(
+        api,
+        body: body,
+      );
     }
-
-    final response = await http.post(
-      api,
-      body: body,
-    );
 
     if (response.statusCode == 200) {
       var responseBody = jsonDecode(response.body); // Add this line
@@ -127,6 +140,17 @@ class _SummaryDoneState extends State<SummaryDone>
           // parse to duble
         });
         double time = double.parse(responseBody['data']['time'].toString());
+        alertSaveTime(time);
+      } else if (widget.type == 'audio-summary') {
+        setState(() {
+          _summaryText =
+              responseBody['data']['summary']['summary']; // Change this line
+          _originalText = responseBody['data']['text'];
+          _isSummary = true;
+          _titleText = responseBody['data']['summary']['title'];
+        });
+        double time =
+            (responseBody['data']['summary']['time'] as num).toDouble();
         alertSaveTime(time);
       } else {
         setState(() {
