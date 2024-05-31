@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:purchases_ui_flutter/purchases_ui_flutter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sumarizeit/page/history/history_page.dart';
 import 'package:sumarizeit/page/record_audio/record_audio_page.dart';
 import 'package:sumarizeit/page/summary_done.dart';
@@ -73,6 +74,18 @@ class _MyHomePageState extends State<MyHomePage> {
     super.initState();
     getDeviceId();
     getPurchaseStatus();
+    _openPurchaseFirstTime();
+  }
+
+  Future<void> _openPurchaseFirstTime() async {
+    //save to shared preference
+    final prefs = await SharedPreferences.getInstance();
+    final bool isFirstTime = prefs.getBool('isFirstTime') ?? true;
+    if (isFirstTime) {
+      prefs.setBool('isFirstTime', false);
+      final paywallResult = await RevenueCatUI.presentPaywallIfNeeded("pro");
+      debugPrint("paywallResult: $paywallResult");
+    }
   }
 
   void getPurchaseStatus() async {
