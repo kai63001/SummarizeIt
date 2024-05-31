@@ -19,6 +19,7 @@ class SummaryDone extends StatefulWidget {
       this.done = false,
       this.pathAudioFile = '',
       this.audioId = '',
+      this.audioDuration = 0,
       this.historyId = ''});
 
   final String text;
@@ -26,6 +27,7 @@ class SummaryDone extends StatefulWidget {
   final String title;
   final String pathAudioFile;
   final String audioId;
+  final double audioDuration;
   final bool done;
   final String historyId;
 
@@ -176,14 +178,10 @@ class _SummaryDoneState extends State<SummaryDone>
         });
         try {
           //get data audio with id
-          Map<String, dynamic> audioData = context
-              .read<HistoryStore>()
-              .state
-              .firstWhere((element) => element['audioId'] == widget.audioId);
-          if (audioData['duration'] != null) {
-            double time = double.parse(audioData['duration'].toString()) /
-                60; //convert to minutes
-            alertSaveTime(time);
+          if (widget.audioDuration != 0) {
+            double time = widget.audioDuration / 60; //convert to minutes
+            double rounded = double.parse(time.toStringAsFixed(2));
+            alertSaveTime(rounded);
           }
         } catch (e) {
           double time =

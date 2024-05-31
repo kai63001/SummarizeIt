@@ -83,8 +83,12 @@ class _PlayAudioPageState extends State<PlayAudioPage> {
       // ignore: use_build_context_synchronously
       context,
       MaterialPageRoute(
-        builder: (context) =>
-            SummaryDone(pathAudioFile: pathAudioFile, type: 'audio-summary',audioId: widget.id,),
+        builder: (context) => SummaryDone(
+          pathAudioFile: pathAudioFile,
+          type: 'audio-summary',
+          audioId: widget.id,
+          audioDuration: double.parse(widget.duration),
+        ),
       ),
       (Route<dynamic> route) => route.isFirst,
     );
