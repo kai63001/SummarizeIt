@@ -144,6 +144,7 @@ class _SummaryDoneState extends State<SummaryDone>
           'audio', widget.pathAudioFile,
           contentType: MediaType('audio', 'm4a')));
       response = await http.Response.fromStream(await request.send());
+      debugPrint(response.body);
     } else {
       api = Uri.parse('$apiUrl/summary/youtube-summary');
       body = {'url': widget.text, 'deviceId': deviceId};
@@ -173,9 +174,22 @@ class _SummaryDoneState extends State<SummaryDone>
           _isSummary = true;
           _titleText = responseBody['data']['summary']['title'];
         });
-        double time =
-            (responseBody['data']['summary']['time'] as num).toDouble();
-        alertSaveTime(time);
+        try {
+          //get data audio with id
+          Map<String, dynamic> audioData = context
+              .read<HistoryStore>()
+              .state
+              .firstWhere((element) => element['audioId'] == widget.audioId);
+          if (audioData['duration'] != null) {
+            double time = double.parse(audioData['duration'].toString()) /
+                60; //convert to minutes
+            alertSaveTime(time);
+          }
+        } catch (e) {
+          double time =
+              (responseBody['data']['summary']['time'] as num).toDouble();
+          alertSaveTime(time);
+        }
       } else {
         setState(() {
           _summaryText = responseBody['data']['summary']; // Change this line
