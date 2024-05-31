@@ -56,8 +56,8 @@ export class SummaryService {
     const tokens = await this.countTokens(text);
     logger.info(`Token input: ${tokens}`);
     // limit characters to 10000
-    if (text.length > 10000) {
-      throw new Error('Text input is too long limit to 10000 characters');
+    if (text.length > 30000) {
+      throw new Error('Text input is too long limit to 30000 characters');
     }
     if (typeof text !== 'string' || text.trim() === '') {
       throw new Error('Invalid text input');

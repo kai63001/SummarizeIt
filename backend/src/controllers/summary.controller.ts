@@ -74,12 +74,13 @@ export class SummaryController {
   public audioSummary = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const file = req.file;
+      const deviceId = req.body.deviceId;
 
       if (!file) {
         throw new Error('Audio file is required');
       }
 
-      const summary = await this.summary.audioSummary(file.buffer, 'device-id');
+      const summary = await this.summary.audioSummary(file.buffer, deviceId);
 
       res.status(200).json({ data: summary, message: 'summary' });
     } catch (error) {

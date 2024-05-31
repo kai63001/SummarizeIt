@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:quickalert/models/quickalert_type.dart';
 import 'package:quickalert/widgets/quickalert_dialog.dart';
 import 'package:sumarizeit/page/summary_done.dart';
@@ -52,8 +53,13 @@ class _PlayAudioPageState extends State<PlayAudioPage> {
     });
   }
 
-  void _playAudio() {
-    audioPlayer.play(DeviceFileSource(widget.audioPath));
+  Future<String> _getAudioPath(String name) async {
+    final path = await getApplicationDocumentsDirectory();
+    return '${path.path}/$name.m4a';
+  }
+
+  Future<void> _playAudio() async {
+    audioPlayer.play(DeviceFileSource(await _getAudioPath(widget.name)));
     setState(() {
       isPlaying = true;
     });
@@ -69,6 +75,19 @@ class _PlayAudioPageState extends State<PlayAudioPage> {
   void _seekAudio(double seconds) {
     Duration newDuration = Duration(seconds: seconds.toInt());
     audioPlayer.seek(newDuration);
+  }
+
+  Future<void> openSummaryDone() async {
+    String pathAudioFile = await _getAudioPath(widget.name);
+    Navigator.pushAndRemoveUntil(
+      // ignore: use_build_context_synchronously
+      context,
+      MaterialPageRoute(
+        builder: (context) =>
+            SummaryDone(pathAudioFile: pathAudioFile, type: 'audio-summary',audioId: widget.id,),
+      ),
+      (Route<dynamic> route) => route.isFirst,
+    );
   }
 
   @override
@@ -120,19 +139,7 @@ class _PlayAudioPageState extends State<PlayAudioPage> {
                                   ),
                                 ),
                                 GestureDetector(
-                                  onTap: () => {
-                                    HapticFeedback.heavyImpact(),
-                                    Navigator.pop(context),
-                                    Navigator.pushAndRemoveUntil(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => SummaryDone(
-                                            pathAudioFile: widget.audioPath,
-                                            type: 'audio-summary'),
-                                      ),
-                                      (Route<dynamic> route) => route.isFirst,
-                                    )
-                                  },
+                                  onTap: () => openSummaryDone(),
                                   child: Padding(
                                     padding: const EdgeInsets.all(8.0),
                                     child: Container(

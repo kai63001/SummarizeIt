@@ -18,12 +18,14 @@ class SummaryDone extends StatefulWidget {
       this.title = '',
       this.done = false,
       this.pathAudioFile = '',
+      this.audioId = '',
       this.historyId = ''});
 
   final String text;
   final String type;
   final String title;
   final String pathAudioFile;
+  final String audioId;
   final bool done;
   final String historyId;
 
@@ -86,6 +88,24 @@ class _SummaryDoneState extends State<SummaryDone>
     });
   }
 
+  bool _middlewareCheckAudioHistory() {
+    List<Map<String, dynamic>> history = context.read<HistoryStore>().state;
+    for (var i = 0; i < history.length; i++) {
+      if (history[i]['type'] == 'audio-summary' &&
+          history[i]['audioId'] == widget.audioId) {
+        setState(() {
+          _summaryText = history[i]['summary'];
+          _originalText = history[i]['original'];
+          _titleText = history[i]['title'];
+          _isSummary = true;
+        });
+        return true;
+      }
+    }
+
+    return false;
+  }
+
   Future _onSummary() async {
     Uri api;
     Map<String, String> body;
@@ -93,6 +113,10 @@ class _SummaryDoneState extends State<SummaryDone>
       _getHistoryById();
       return;
     }
+    if (_middlewareCheckAudioHistory()) {
+      return;
+    }
+
     http.Response response;
 
     String deviceId = context.read<DeviceIdStore>().state;
@@ -184,7 +208,8 @@ class _SummaryDoneState extends State<SummaryDone>
           'summary': _summaryText,
           'original': _originalText,
           'type': widget.type,
-          'date': DateTime.now().toString()
+          'date': DateTime.now().toString(),
+          'audioId': widget.audioId,
         }));
   }
 
