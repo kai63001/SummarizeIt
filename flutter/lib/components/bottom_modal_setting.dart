@@ -1,6 +1,9 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:purchases_ui_flutter/purchases_ui_flutter.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class BottomModalSetting extends StatefulWidget {
   const BottomModalSetting({super.key});
@@ -14,6 +17,20 @@ class _BottomModalSettingState extends State<BottomModalSetting> {
     HapticFeedback.mediumImpact();
     final paywallResult = await RevenueCatUI.presentPaywallIfNeeded("pro");
     debugPrint("paywallResult: $paywallResult");
+  }
+
+  Future<void> _openManageSubscription() async {
+    HapticFeedback.mediumImpact();
+    if (Platform.isIOS) {
+      const url = 'https://apps.apple.com/account/subscriptions';
+      // ignore: deprecated_member_use
+      if (await canLaunch(url)) {
+        // ignore: deprecated_member_use
+        await launch(url);
+      } else {
+        throw 'Could not launch $url';
+      }
+    }
   }
 
   @override
@@ -108,6 +125,37 @@ class _BottomModalSettingState extends State<BottomModalSetting> {
                                           ),
                                           const Text(
                                             'Rate Us',
+                                            style: TextStyle(
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.bold),
+                                          )
+                                        ])),
+                              ),
+                            ),
+                            GestureDetector(
+                              onTap: () => {
+                                _openManageSubscription(),
+                              },
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 15.0, vertical: 5.0),
+                                child: Container(
+                                    decoration: const BoxDecoration(
+                                      color: Color.fromARGB(255, 43, 43, 54),
+                                      borderRadius:
+                                          BorderRadius.all(Radius.circular(10)),
+                                    ),
+                                    child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.start,
+                                        children: [
+                                          IconButton(
+                                            onPressed: () {},
+                                            icon: const Icon(Icons.rate_review,
+                                                color: Color(0xFFFFD789)),
+                                          ),
+                                          const Text(
+                                            'Manage Subscription',
                                             style: TextStyle(
                                                 color: Colors.white,
                                                 fontWeight: FontWeight.bold),
