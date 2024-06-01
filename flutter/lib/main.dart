@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:purchases_ui_flutter/purchases_ui_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sumarizeit/components/bottom_modal_setting.dart';
 import 'package:sumarizeit/page/history/history_page.dart';
 import 'package:sumarizeit/page/record_audio/record_audio_page.dart';
 import 'package:sumarizeit/page/summary_done.dart';
@@ -137,24 +138,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         },
                       )),
                   // profile
-                  Container(
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF282834),
-                      borderRadius: BorderRadius.circular(50),
-                    ),
-                    child: IconButton(
-                      onPressed: () async {
-                        HapticFeedback.heavyImpact();
-                        // Navigator.of(context).push(MaterialPageRoute(
-                        //     builder: (context) => const PurchaseModal()));
-                        final paywallResult =
-                            await RevenueCatUI.presentPaywallIfNeeded("pro");
-                        debugPrint("paywallResult: $paywallResult");
-                      },
-                      icon: const Icon(Icons.star_rounded,
-                          color: Color(0xFFFFD789)),
-                    ),
-                  )
+                  const BottomModalSetting()
                 ],
               ),
               const SizedBox(height: 16),

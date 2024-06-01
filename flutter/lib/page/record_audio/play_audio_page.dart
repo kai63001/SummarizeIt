@@ -145,7 +145,8 @@ class _PlayAudioPageState extends State<PlayAudioPage> {
                                 GestureDetector(
                                   onTap: () => openSummaryDone(),
                                   child: Padding(
-                                    padding: const EdgeInsets.all(8.0),
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 15.0, vertical: 5.0),
                                     child: Container(
                                         decoration: const BoxDecoration(
                                           color:
@@ -196,7 +197,8 @@ class _PlayAudioPageState extends State<PlayAudioPage> {
                                     )
                                   },
                                   child: Padding(
-                                    padding: const EdgeInsets.all(8.0),
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 15.0, vertical: 5.0),
                                     child: Container(
                                         decoration: const BoxDecoration(
                                           color:
