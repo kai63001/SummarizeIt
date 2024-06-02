@@ -181,22 +181,23 @@ class _SummaryDoneState extends State<SummaryDone>
 
     if (response.statusCode == 200) {
       var responseBody = jsonDecode(response.body); // Add this line
+      debugPrint('responseBody: $responseBody');
       if (widget.type == 'text-summary') {
         setState(() {
-          _summaryText = responseBody['data']['summary']; // Change this line
-          _originalText = widget.text;
           _isSummary = true;
-          _titleText = responseBody['data']['title'];
+          _summaryText = responseBody['data']['summary']['summary']; // Change this line
+          _originalText = widget.text;
+          _titleText = responseBody['data']['summary']['title'];
           // parse to duble
         });
-        double time = double.parse(responseBody['data']['time'].toString());
+        double time = double.parse(responseBody['data']['summary']['time'].toString());
         alertSaveTime(time);
       } else if (widget.type == 'audio-summary') {
         setState(() {
+          _isSummary = true;
           _summaryText =
               responseBody['data']['summary']['summary']; // Change this line
           _originalText = responseBody['data']['text'];
-          _isSummary = true;
           _titleText = responseBody['data']['summary']['title'];
         });
         try {
@@ -213,9 +214,9 @@ class _SummaryDoneState extends State<SummaryDone>
         }
       } else {
         setState(() {
+          _isSummary = true;
           _summaryText = responseBody['data']['summary']; // Change this line
           _originalText = responseBody['data']['text'];
-          _isSummary = true;
           _titleText = widget.title;
         });
         double time = (responseBody['data']['time'] as num).toDouble();
