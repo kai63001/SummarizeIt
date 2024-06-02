@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:ffmpeg_kit_flutter/ffmpeg_kit.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/services.dart';
@@ -8,6 +10,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:quickalert/models/quickalert_type.dart';
 import 'package:quickalert/widgets/quickalert_dialog.dart';
 import 'package:sumarizeit/page/summary_done.dart';
+import 'package:sumarizeit/store/history_store.dart';
 import 'package:sumarizeit/store/recording_store.dart';
 
 class PlayAudioPage extends StatefulWidget {
@@ -77,21 +80,106 @@ class _PlayAudioPageState extends State<PlayAudioPage> {
     audioPlayer.seek(newDuration);
   }
 
+  Future<String> removeSilence(String inputFilePath) async {
+    //loading full modal
+    QuickAlert.show(
+      context: context,
+      type: QuickAlertType.loading,
+      title: 'Optimizing audio',
+      text: 'Removing silence...',
+      disableBackBtn: true,
+    );
+    String outputFilePath =
+        inputFilePath.replaceFirst(RegExp(r'\.\w+$'), '_optimized.m4a');
+    String command =
+        "-i $inputFilePath -af silenceremove=start_periods=1:stop_periods=-1:stop_duration=1:start_threshold=-45dB:stop_threshold=-45dB $outputFilePath";
+
+    await FFmpegKit.executeAsync(command, (session) async {
+      final returnCode = await session.getReturnCode();
+      if (returnCode!.isValueSuccess()) {
+        debugPrint(
+            "FFmpeg process exited successfully, optimized file created at $outputFilePath");
+        Navigator.pushAndRemoveUntil(
+          // ignore: use_build_context_synchronously
+          context,
+          MaterialPageRoute(
+            builder: (context) => SummaryDone(
+              pathAudioFile: outputFilePath,
+              type: 'audio-summary',
+              audioId: widget.id,
+              audioDuration: double.parse(widget.duration),
+            ),
+          ),
+          (Route<dynamic> route) => route.isFirst,
+        );
+      } else {
+        debugPrint("FFmpeg process failed with return code $returnCode");
+        Navigator.pushAndRemoveUntil(
+          // ignore: use_build_context_synchronously
+          context,
+          MaterialPageRoute(
+            builder: (context) => SummaryDone(
+              pathAudioFile: inputFilePath,
+              type: 'audio-summary',
+              audioId: widget.id,
+              audioDuration: double.parse(widget.duration),
+            ),
+          ),
+          (Route<dynamic> route) => route.isFirst,
+        );
+      }
+    }, (log) {
+      debugPrint(log.getMessage());
+    });
+    return outputFilePath;
+  }
+
+  bool _middlewareCheckAudioHistory() {
+    List<Map<String, dynamic>> history = context.read<HistoryStore>().state;
+    for (var i = 0; i < history.length; i++) {
+      if (history[i]['type'] == 'audio-summary' &&
+          history[i]['audioId'] == widget.id) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
   Future<void> openSummaryDone() async {
     String pathAudioFile = await _getAudioPath(widget.name);
-    Navigator.pushAndRemoveUntil(
-      // ignore: use_build_context_synchronously
-      context,
-      MaterialPageRoute(
-        builder: (context) => SummaryDone(
-          pathAudioFile: pathAudioFile,
-          type: 'audio-summary',
-          audioId: widget.id,
-          audioDuration: double.parse(widget.duration),
+    if (_middlewareCheckAudioHistory()) {
+      Navigator.pushAndRemoveUntil(
+        // ignore: use_build_context_synchronously
+        context,
+        MaterialPageRoute(
+          builder: (context) => SummaryDone(
+            pathAudioFile: pathAudioFile,
+            type: 'audio-summary',
+            audioId: widget.id,
+            audioDuration: double.parse(widget.duration),
+          ),
         ),
-      ),
-      (Route<dynamic> route) => route.isFirst,
-    );
+        (Route<dynamic> route) => route.isFirst,
+      );
+      return;
+    }
+    debugPrint('pathAudioFile: $pathAudioFile');
+    await removeSilence(pathAudioFile);
+
+    // Navigator.pushAndRemoveUntil(
+    //   // ignore: use_build_context_synchronously
+    //   context,
+    //   MaterialPageRoute(
+    //     builder: (context) => SummaryDone(
+    //       pathAudioFile: outputPath,
+    //       type: 'audio-summary',
+    //       audioId: widget.id,
+    //       audioDuration: double.parse(widget.duration),
+    //     ),
+    //   ),
+    //   (Route<dynamic> route) => route.isFirst,
+    // );
   }
 
   @override
