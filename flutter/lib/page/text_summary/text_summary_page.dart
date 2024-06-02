@@ -10,7 +10,7 @@ class TextSummaryPage extends StatefulWidget {
 
 class _TextSummaryPageState extends State<TextSummaryPage> {
   final TextEditingController _controller = TextEditingController();
-  int _characterCount = 0;
+  // int _characterCount = 0;
 
   @override
   void initState() {
@@ -25,9 +25,9 @@ class _TextSummaryPageState extends State<TextSummaryPage> {
   }
 
   void _updateCharacterCount() {
-    setState(() {
-      _characterCount = _controller.text.length;
-    });
+    // setState(() {
+    // _characterCount = _controller.text.length;
+    // });
   }
 
   void _submitText() {
@@ -70,21 +70,21 @@ class _TextSummaryPageState extends State<TextSummaryPage> {
                           horizontal: 25.0, vertical: 5.0),
                       child: TextField(
                         controller: _controller,
-                        maxLines: 10000,
+                        maxLines: 30000,
                         decoration: const InputDecoration(
                             hintText: 'Enter your text here',
                             border: InputBorder.none),
                       ),
                     ),
                   ),
-                  Positioned(
-                    right: 10,
-                    bottom: 10,
-                    child: Text(
-                      '$_characterCount/10,000 characters',
-                      style: const TextStyle(color: Colors.grey),
-                    ),
-                  ),
+                  // Positioned(
+                  //   right: 10,
+                  //   bottom: 10,
+                  //   child: Text(
+                  //     '$_characterCount/10,000 characters',
+                  //     style: const TextStyle(color: Colors.grey),
+                  //   ),
+                  // ),
                 ],
               ),
             ),

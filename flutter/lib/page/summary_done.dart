@@ -2,10 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
+import 'package:purchases_ui_flutter/purchases_ui_flutter.dart';
 import 'package:quickalert/models/quickalert_type.dart';
 import 'package:quickalert/widgets/quickalert_dialog.dart';
+import 'package:sumarizeit/main.dart';
 import 'package:sumarizeit/store/deviceId_store.dart';
 import 'package:sumarizeit/store/history_store.dart';
+import 'package:sumarizeit/store/purchase_store.dart';
 import 'package:sumarizeit/store/saved_time_store.dart';
 import '../contant/contants.dart';
 import 'dart:convert';
@@ -108,6 +111,24 @@ class _SummaryDoneState extends State<SummaryDone>
     return false;
   }
 
+  Future<bool> _checkProOrNot() async {
+    bool pro = context.read<PurchaseStore>().state['isPro'] ?? false;
+    debugPrint('pro: $pro');
+    if (!pro) {
+      final paywallResult = await RevenueCatUI.presentPaywallIfNeeded("pro");
+      debugPrint("paywallResult: $paywallResult");
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const MyApp(),
+        ),
+        (Route<dynamic> route) => route.isFirst,
+      );
+      return false;
+    }
+    return true;
+  }
+
   Future _onSummary() async {
     Uri api;
     Map<String, String> body;
@@ -116,6 +137,9 @@ class _SummaryDoneState extends State<SummaryDone>
       return;
     }
     if (_middlewareCheckAudioHistory()) {
+      return;
+    }
+    if (await _checkProOrNot() == false) {
       return;
     }
 
@@ -146,7 +170,6 @@ class _SummaryDoneState extends State<SummaryDone>
           'audio', widget.pathAudioFile,
           contentType: MediaType('audio', 'm4a')));
       response = await http.Response.fromStream(await request.send());
-      debugPrint(response.body);
     } else {
       api = Uri.parse('$apiUrl/summary/youtube-summary');
       body = {'url': widget.text, 'deviceId': deviceId};
@@ -200,6 +223,8 @@ class _SummaryDoneState extends State<SummaryDone>
       }
       saveToHistory();
     } else {
+      var responseBody = jsonDecode(response.body); // Add this line
+      String message = responseBody['message'] ?? 'Failed to load summary';
       //back to pop
       // ignore: use_build_context_synchronously
       Navigator.pop(context);
@@ -208,7 +233,7 @@ class _SummaryDoneState extends State<SummaryDone>
         context: context,
         type: QuickAlertType.error,
         title: 'Summary Failed',
-        text: '🚨 Transcript is disabled on this video',
+        text: '🚨 $message',
       );
     }
   }

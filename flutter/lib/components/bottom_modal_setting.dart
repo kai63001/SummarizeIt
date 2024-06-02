@@ -151,7 +151,7 @@ class _BottomModalSettingState extends State<BottomModalSetting> {
                                         children: [
                                           IconButton(
                                             onPressed: () {},
-                                            icon: const Icon(Icons.rate_review,
+                                            icon: const Icon(Icons.manage_accounts,
                                                 color: Color(0xFFFFD789)),
                                           ),
                                           const Text(
