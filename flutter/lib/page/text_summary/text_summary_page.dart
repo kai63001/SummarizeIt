@@ -70,7 +70,7 @@ class _TextSummaryPageState extends State<TextSummaryPage> {
                           horizontal: 25.0, vertical: 5.0),
                       child: TextField(
                         controller: _controller,
-                        maxLines: 30000,
+                        maxLines: 200000,
                         decoration: const InputDecoration(
                             hintText: 'Enter your text here',
                             border: InputBorder.none),

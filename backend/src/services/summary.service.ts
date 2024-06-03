@@ -59,9 +59,9 @@ export class SummaryService {
   public async textSummary(text: string, deviceId: string): Promise<any> {
     const tokens = await this.countTokens(text);
     logger.info(`Token input: ${tokens}`);
-    // limit characters to 30000
-    if (text.length > 30000) {
-      throw new Error('Text input is too long limit to 30,000 characters');
+    // limit characters to 200000
+    if (text.length > 200000) {
+      throw new Error('Text input is too long limit to 200,000 characters');
     }
     if (typeof text !== 'string' || text.trim() === '') {
       throw new Error('Invalid text input');
