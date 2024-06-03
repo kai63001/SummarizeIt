@@ -174,9 +174,11 @@ class _SummaryDoneState extends State<SummaryDone>
 
     http.Response response;
 
+    // ignore: use_build_context_synchronously
     String deviceId = context.read<DeviceIdStore>().state;
     if (deviceId.isEmpty) {
       QuickAlert.show(
+        // ignore: use_build_context_synchronously
         context: context,
         type: QuickAlertType.error,
         title: 'Error',
