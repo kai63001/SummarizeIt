@@ -1,1 +1,1 @@
-const apiUrl = String.fromEnvironment('API_URL', defaultValue: 'http://localhost:3001');
+const apiUrl = String.fromEnvironment('API_URL', defaultValue: 'https://summarizeit.wizlab.app');
