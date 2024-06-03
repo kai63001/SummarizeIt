@@ -269,7 +269,7 @@ class _SummaryDoneState extends State<SummaryDone>
           // ignore: use_build_context_synchronously
           context: context,
           type: QuickAlertType.error,
-          title: 'This video has no transcript. if you want to use this video, please contact us.',
+          title: 'This video has no transcript. feature on beta, please contact us if you need this feature',
           text: '🚨 $message',
         );
       }
