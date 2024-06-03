@@ -6,6 +6,9 @@ import openaiTokenCounter from 'openai-gpt-token-counter';
 import axios from 'axios';
 import { SummaryModel } from '@/models/summary.model';
 import he from 'he';
+import ytdl from 'ytdl-core';
+import ffmpegPath from 'ffmpeg-static';
+import ffmpeg from 'fluent-ffmpeg';
 
 @Service()
 export class SummaryService {
@@ -97,6 +100,8 @@ export class SummaryService {
   public async youtubeSummary(url: string, title: string, deviceId: string): Promise<any> {
     const subtitles = await YoutubeTranscript.fetchTranscript(url, {
       lang: 'en',
+    }).catch(() => {
+      throw new Error('Error fetching transcript');
     });
     // sum all time of this video via offset and duration and return
     const sum = subtitles.reduce((acc, subtitle) => acc + subtitle.duration, 0);
@@ -116,9 +121,9 @@ export class SummaryService {
     };
     const transcript = textAndOffset();
 
-    // check if the video is more than 35 minutes
-    if (sum > 2100) {
-      throw new Error('Video is too long, limit to 35 minutes');
+    // check if the video is more than 6 hours
+    if (sum > 21600) {
+      throw new Error('Video is too long, limit to 6 hours');
     }
 
     const text = subtitles.map((subtitle: any) => subtitle.text).join(' ');
@@ -156,5 +161,75 @@ export class SummaryService {
       title: data.title,
       thumbnail: data.thumbnail_url,
     };
+  }
+
+  public async youtubeSummaryWithDownload(url: string, title: string, deviceId: string): Promise<any> {
+    if (!title) {
+      throw new Error('Title is required');
+    }
+    //check title is not a song
+    const checkSong = await this.openai.checkTitleVideoIsASong(title);
+    if (checkSong) {
+      throw new Error('This video is a song, not allowed to summarize');
+    }
+
+    const { time, buffer } = await this.downloadAndConvertYoutubeToBuffer(url);
+    //convert time 00:03:29.40 to mins
+    const convertTimer = () => {
+      const timeArr = time.split(':');
+      const hours = parseInt(timeArr[0]) * 60;
+      const mins = parseInt(timeArr[1]);
+      const sec = parseInt(timeArr[2]) / 60;
+      return hours + mins + sec;
+    };
+
+    // check if the video is more than 4 hours
+    if (convertTimer() > 240) {
+      throw new Error('Video is too long, limit to 4 hours');
+    }
+
+    const { text } = await this.openai.getAudioTranscription(buffer);
+
+    const { summary } = await this.openai.youtubeSummary(text);
+
+    // save to db
+    await SummaryModel.create({ deviceId, textLength: text.length });
+
+    return {
+      text: he.decode(text),
+      summary,
+      time: convertTimer(),
+      title,
+    };
+  }
+
+  public async downloadAndConvertYoutubeToBuffer(youtubeUrl: string): Promise<{
+    buffer: Buffer;
+    time: string;
+  }> {
+    return new Promise((resolve, reject) => {
+      ffmpeg.setFfmpegPath(ffmpegPath);
+
+      const audioStream = ytdl(youtubeUrl, { quality: 'highestaudio' });
+
+      const chunks: Buffer[] = [];
+      let time: string;
+      const ffmpegProcess = ffmpeg(audioStream)
+        .format('mp3')
+        .on('error', reject)
+        .on('codecData', function (data) {
+          time = data.duration;
+        })
+        .on('end', () => {
+          const buffer = Buffer.concat(chunks);
+          resolve({
+            buffer,
+            time,
+          });
+        })
+        .pipe();
+
+      ffmpegProcess.on('data', chunk => chunks.push(chunk));
+    });
   }
 }

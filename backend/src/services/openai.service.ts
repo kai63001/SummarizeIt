@@ -94,6 +94,53 @@ export class OpenAIService {
     return output;
   }
 
+  public async checkTitleVideoIsASong(title: string): Promise<boolean> {
+    const completion = await this.openai.chat.completions.create({
+      messages: [
+        {
+          role: 'system',
+          content: `Check if the title of the video is a song or not. If the title is a song, return true; otherwise, return false. for example, if the title is "Alan Walker - Faded", the output should be true. or lofi chill beats to study/relax to`,
+        },
+        {
+          role: 'user',
+          content: 'Daily work space 📚 Lofi deep focus study work concentration [chill lo-fi hiphop beats]',
+        },
+        {
+          role: 'assistant',
+          content: 'true',
+        },
+        {
+          role: 'user',
+          content: 'Relax with my cat - beats to sleep/study x Fall In Luv',
+        },
+        {
+          role: 'assistant',
+          content: 'true',
+        },
+        {
+          role: 'user',
+          content: 'My Quest to Cure Prion Disease — Before It’s Too Late | Sonia Vallabh | TED',
+        },
+        {
+          role: 'assistant',
+          content: 'false',
+        },
+        {
+          role: 'user',
+          content: title,
+        },
+      ],
+      model: 'gpt-3.5-turbo',
+    });
+
+    const output = completion.choices[0].message.content;
+    console.log(output);
+    const response = JSON.parse(jsonrepair(output));
+    //log token usage
+    logger.info(`Token usage: ${completion.usage.total_tokens}`);
+    return response;
+  }
+
   public async getAudioTranscription(audio: Buffer): Promise<any> {
     const file = await toFile(Buffer.from(audio), 'audio.m4a');
     const transcription = await this.openai.audio.transcriptions.create({

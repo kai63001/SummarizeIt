@@ -18,6 +18,7 @@ export class SummaryRoute implements Routes {
   private initializeRoutes() {
     this.router.post(`${this.path}/text-summary`, ValidationMiddleware(TextSummaryDto), this.summary.getTextSummary);
     this.router.post(`${this.path}/youtube-summary`, ValidationMiddleware(YoutubeSummaryDto), this.summary.getYoutubeSummary);
+    this.router.post(`${this.path}/youtube-summary-download`, ValidationMiddleware(YoutubeSummaryDto), this.summary.getYoutubeDownload);
     this.router.get(`${this.path}/get-youtube-data`, this.summary.getYoutubeData);
     this.router.post(`${this.path}/audio-summary`, upload.single('audio'), this.summary.audioSummary);
   }

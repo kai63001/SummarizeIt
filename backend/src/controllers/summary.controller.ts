@@ -71,6 +71,24 @@ export class SummaryController {
     }
   };
 
+  public getYoutubeDownload = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { url, title, deviceId }: { url: string; title: string; deviceId: string } = req.body;
+      if (!url) {
+        throw new Error('URL is required');
+      }
+      if (!deviceId) {
+        throw new Error('Device ID is required');
+      }
+
+      const data = await this.summary.youtubeSummaryWithDownload(url, title, deviceId);
+
+      res.status(200).json({ data, message: 'summary' });
+    } catch (error) {
+      next(error);
+    }
+  };
+
   public audioSummary = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const file = req.file;
