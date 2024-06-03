@@ -263,6 +263,52 @@ class _SummaryDoneState extends State<SummaryDone>
     } else {
       var responseBody = jsonDecode(response.body); // Add this line
       String message = responseBody['message'] ?? 'Failed to load summary';
+      if (message == 'Error fetching transcript') {
+        Navigator.pop(context);
+        QuickAlert.show(
+          // ignore: use_build_context_synchronously
+          context: context,
+          type: QuickAlertType.error,
+          title: 'This video has no transcript. if you want to use this video, please contact us.',
+          text: '🚨 $message',
+        );
+      }
+      //back to pop
+      // ignore: use_build_context_synchronously
+      Navigator.pop(context);
+      QuickAlert.show(
+        // ignore: use_build_context_synchronously
+        context: context,
+        type: QuickAlertType.error,
+        title: 'Summary Failed',
+        text: '🚨 $message',
+      );
+    }
+  }
+
+  Future _onFetchYoutubeVideo(String youtubeUrl, String deviceId) async {
+    Uri api;
+    Map<String, String> body;
+    http.Response response;
+    api = Uri.parse('$apiUrl/summary/youtube-summary-download');
+    body = {'url': widget.text, 'deviceId': deviceId, 'title': widget.title};
+    response = await http.post(
+      api,
+      body: body,
+    );
+    if (response.statusCode == 200) {
+      var responseBody = jsonDecode(response.body); // Add this line
+      setState(() {
+        _isSummary = true;
+        _summaryText = responseBody['data']['summary']; // Change this line
+        _originalText = responseBody['data']['text'];
+        _titleText = widget.title;
+      });
+      double time = (responseBody['data']['time'] as num).toDouble();
+      alertSaveTime(time);
+    } else {
+      var responseBody = jsonDecode(response.body); // Add this line
+      String message = responseBody['message'] ?? 'Failed to load summary';
       //back to pop
       // ignore: use_build_context_synchronously
       Navigator.pop(context);
