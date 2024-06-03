@@ -58,6 +58,7 @@ dependencies:
   url_launcher: ^6.2.6
   flutter_launcher_icons: ^0.13.1
   ffmpeg_kit_flutter: ^6.0.3
+  html_unescape: ^2.0.0
 
 flutter_launcher_icons:
   android: "launcher_icon"

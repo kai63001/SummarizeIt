@@ -143,7 +143,7 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
               const SizedBox(height: 16),
               // large text
-              const Text('Start Your Summary Journey Here',
+              const Text('Start Your Summary Here',
                   style: TextStyle(fontSize: 38, fontWeight: FontWeight.bold)),
               const SizedBox(height: 10),
               Padding(

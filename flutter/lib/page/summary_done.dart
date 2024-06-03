@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:html_unescape/html_unescape.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 import 'package:purchases_ui_flutter/purchases_ui_flutter.dart';
@@ -23,6 +24,7 @@ class SummaryDone extends StatefulWidget {
       this.pathAudioFile = '',
       this.audioId = '',
       this.audioDuration = 0,
+      this.youtubeUrl = '',
       this.historyId = ''});
 
   final String text;
@@ -33,6 +35,7 @@ class SummaryDone extends StatefulWidget {
   final double audioDuration;
   final bool done;
   final String historyId;
+  final String youtubeUrl;
 
   @override
   State<SummaryDone> createState() => _SummaryDoneState();
@@ -43,6 +46,7 @@ class _SummaryDoneState extends State<SummaryDone>
   bool _isSummary = false;
   String _summaryText = '';
   String _originalText = '';
+  String _transcriptText = '';
   String _titleText = '';
   late TabController _tabController;
   final ThemeData theme = ThemeData();
@@ -102,6 +106,7 @@ class _SummaryDoneState extends State<SummaryDone>
           _summaryText = history[i]['summary'];
           _originalText = history[i]['original'];
           _titleText = history[i]['title'];
+          _transcriptText = history[i]['transcript'];
           _isSummary = true;
         });
         return true;
@@ -129,7 +134,27 @@ class _SummaryDoneState extends State<SummaryDone>
     return true;
   }
 
+  bool _middlewareCheckYoutubeHistory() {
+    List<Map<String, dynamic>> history = context.read<HistoryStore>().state;
+    for (var i = 0; i < history.length; i++) {
+      if (history[i]['type'] == 'youtube-summary' &&
+          history[i]['youtubeUrl'] == widget.youtubeUrl) {
+        setState(() {
+          _summaryText = history[i]['summary'];
+          _originalText = history[i]['original'];
+          _titleText = history[i]['title'];
+          _transcriptText = history[i]['transcript'];
+          _isSummary = true;
+        });
+        return true;
+      }
+    }
+
+    return false;
+  }
+
   Future _onSummary() async {
+    var unescape = HtmlUnescape();
     Uri api;
     Map<String, String> body;
     if (widget.done && widget.historyId.isNotEmpty) {
@@ -139,6 +164,10 @@ class _SummaryDoneState extends State<SummaryDone>
     if (_middlewareCheckAudioHistory()) {
       return;
     }
+    if (_middlewareCheckYoutubeHistory()) {
+      return;
+    }
+
     if (await _checkProOrNot() == false) {
       return;
     }
@@ -181,16 +210,17 @@ class _SummaryDoneState extends State<SummaryDone>
 
     if (response.statusCode == 200) {
       var responseBody = jsonDecode(response.body); // Add this line
-      debugPrint('responseBody: $responseBody');
       if (widget.type == 'text-summary') {
         setState(() {
           _isSummary = true;
-          _summaryText = responseBody['data']['summary']['summary']; // Change this line
+          _summaryText =
+              responseBody['data']['summary']['summary']; // Change this line
           _originalText = widget.text;
           _titleText = responseBody['data']['summary']['title'];
           // parse to duble
         });
-        double time = double.parse(responseBody['data']['summary']['time'].toString());
+        double time =
+            double.parse(responseBody['data']['summary']['time'].toString());
         alertSaveTime(time);
       } else if (widget.type == 'audio-summary') {
         setState(() {
@@ -213,10 +243,15 @@ class _SummaryDoneState extends State<SummaryDone>
           alertSaveTime(time);
         }
       } else {
+        // * youtube summary
         setState(() {
           _isSummary = true;
           _summaryText = responseBody['data']['summary']; // Change this line
-          _originalText = responseBody['data']['text'];
+          _originalText = unescape.convert(responseBody['data']['text']);
+          if (responseBody['data']['transcript'] != null ||
+              responseBody['data']['transcript'] != '') {
+            _transcriptText = responseBody['data']['transcript'];
+          }
           _titleText = widget.title;
         });
         double time = (responseBody['data']['time'] as num).toDouble();
@@ -245,9 +280,11 @@ class _SummaryDoneState extends State<SummaryDone>
           'title': _titleText,
           'summary': _summaryText,
           'original': _originalText,
+          'transcript': _transcriptText,
           'type': widget.type,
           'date': DateTime.now().toString(),
           'audioId': widget.audioId,
+          'youtubeUrl': widget.youtubeUrl,
         }));
   }
 
@@ -328,29 +365,44 @@ class _SummaryDoneState extends State<SummaryDone>
                   ),
                 ),
               ),
-              Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(
-                    color: Colors.grey,
-                  ),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(15.0),
-                  child: ListView(
-                    children: [
-                      // Text(widget.text),
-                      TextField(
-                        controller: TextEditingController(text: _originalText),
-                        maxLines: null,
-                        readOnly: true,
-                        decoration: const InputDecoration(
-                          border: InputBorder.none,
-                        ),
+              Stack(
+                children: [
+                  // controll use original or transcript
+                  // if (_transcriptText.isNotEmpty)
+                  //   Positioned(
+                  //     right: 10,
+                  //     top: 10,
+                  //     child: ElevatedButton(
+                  //       onPressed: () {},
+                  //       child: const Icon(Icons.timer),
+                  //     ),
+                  //   ),
+                  Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(
+                        color: Colors.grey,
                       ),
-                    ],
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(15.0),
+                      child: ListView(
+                        children: [
+                          // Text(widget.text),
+                          TextField(
+                            controller:
+                                TextEditingController(text: _originalText),
+                            maxLines: null,
+                            readOnly: true,
+                            decoration: const InputDecoration(
+                              border: InputBorder.none,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
-                ),
+                ],
               ),
             ]),
           ),

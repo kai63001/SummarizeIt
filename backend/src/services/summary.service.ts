@@ -5,6 +5,7 @@ import { YoutubeTranscript } from 'youtube-transcript';
 import openaiTokenCounter from 'openai-gpt-token-counter';
 import axios from 'axios';
 import { SummaryModel } from '@/models/summary.model';
+import he from 'he';
 
 @Service()
 export class SummaryService {
@@ -74,6 +75,15 @@ export class SummaryService {
     };
   }
 
+  private convertToTime(seconds: number) {
+    // 00:00:00
+    const hours = Math.floor(seconds / 3600) < 1 ? '' : `${Math.floor(seconds / 3600)}:`;
+    const minutes = Math.floor((seconds % 3600) / 60) < 10 ? `0${Math.floor((seconds % 3600) / 60)}` : Math.floor((seconds % 3600) / 60);
+    // should have 0 in front of single digit
+    const sec = Math.floor(seconds % 60) < 10 ? `0${Math.floor(seconds % 60)}` : Math.floor(seconds % 60);
+    return `${hours}${minutes}:${sec}`;
+  }
+
   /**
    * Fetches the transcript of a YouTube video, generates a summary of the transcript,
    * and returns the summary along with other relevant information.
@@ -90,6 +100,22 @@ export class SummaryService {
     });
     // sum all time of this video via offset and duration and return
     const sum = subtitles.reduce((acc, subtitle) => acc + subtitle.duration, 0);
+
+    const textAndOffset = () => {
+      const convertd = subtitles.map((subtitle: any) => {
+        return {
+          text: he.decode(subtitle.text.toString().trim()),
+          offset: this.convertToTime(subtitle.offset),
+        };
+      });
+      let textNew = '';
+      convertd.forEach(element => {
+        textNew += `${element.offset} \n${he.decode(element.text)} \n\n`;
+      });
+      return textNew;
+    };
+    const transcript = textAndOffset();
+
     // check if the video is more than 35 minutes
     if (sum > 2100) {
       throw new Error('Video is too long, limit to 35 minutes');
@@ -109,7 +135,8 @@ export class SummaryService {
     await SummaryModel.create({ deviceId, textLength: text.length });
 
     return {
-      text,
+      text: he.decode(text),
+      transcript: transcript,
       summary,
       time,
       title,

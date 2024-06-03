@@ -17,7 +17,6 @@ class HistoryPage extends StatelessWidget {
             builder: (context, state) {
           return ListView.builder(
             shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
             itemCount: state.length,
             itemBuilder: (context, index) {
               return GestureDetector(

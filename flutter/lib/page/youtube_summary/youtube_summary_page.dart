@@ -96,6 +96,7 @@ class _YotubeSummaryPageState extends State<YotubeSummaryPage> {
                         text: _controller.text,
                         type: 'youtube-summary',
                         title: _youtubeData['title'],
+                        youtubeUrl: _controller.text,
                       ),
                     ),
                     (Route<dynamic> route) => route.isFirst,
