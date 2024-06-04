@@ -96,6 +96,7 @@
    </AnalyzeAction>
    <ArchiveAction
       buildConfiguration = "Release"
+      customArchiveName = "ReleaseRevenueCat"
       revealArchiveInOrganizer = "YES">
    </ArchiveAction>
 </Scheme>
