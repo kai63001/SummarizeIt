@@ -2,7 +2,9 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:purchases_ui_flutter/purchases_ui_flutter.dart';
+import 'package:sumarizeit/store/purchase_store.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class BottomModalSetting extends StatefulWidget {
@@ -13,6 +15,7 @@ class BottomModalSetting extends StatefulWidget {
 }
 
 class _BottomModalSettingState extends State<BottomModalSetting> {
+
   Future<void> _openPurchase() async {
     HapticFeedback.mediumImpact();
     final paywallResult = await RevenueCatUI.presentPaywallIfNeeded("pro");
@@ -32,6 +35,7 @@ class _BottomModalSettingState extends State<BottomModalSetting> {
       }
     }
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -73,37 +77,38 @@ class _BottomModalSettingState extends State<BottomModalSetting> {
                                 borderRadius: BorderRadius.circular(10),
                               ),
                             ),
-                            GestureDetector(
-                              onTap: () {
-                                _openPurchase();
-                              },
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 15.0, vertical: 5.0),
-                                child: Container(
-                                    decoration: const BoxDecoration(
-                                      color: Color.fromARGB(255, 43, 43, 54),
-                                      borderRadius:
-                                          BorderRadius.all(Radius.circular(10)),
-                                    ),
-                                    child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.start,
-                                        children: [
-                                          IconButton(
-                                            onPressed: () {},
-                                            icon: const Icon(Icons.star,
-                                                color: Color(0xFFFFD789)),
-                                          ),
-                                          const Text(
-                                            'Get Premium',
-                                            style: TextStyle(
-                                                color: Colors.white,
-                                                fontWeight: FontWeight.bold),
-                                          )
-                                        ])),
+                            if (!context.read<PurchaseStore>().state['isPro'])
+                              GestureDetector(
+                                onTap: () {
+                                  _openPurchase();
+                                },
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 15.0, vertical: 5.0),
+                                  child: Container(
+                                      decoration: const BoxDecoration(
+                                        color: Color.fromARGB(255, 43, 43, 54),
+                                        borderRadius: BorderRadius.all(
+                                            Radius.circular(10)),
+                                      ),
+                                      child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.start,
+                                          children: [
+                                            IconButton(
+                                              onPressed: () {},
+                                              icon: const Icon(Icons.star,
+                                                  color: Color(0xFFFFD789)),
+                                            ),
+                                            const Text(
+                                              'Get Premium',
+                                              style: TextStyle(
+                                                  color: Colors.white,
+                                                  fontWeight: FontWeight.bold),
+                                            )
+                                          ])),
+                                ),
                               ),
-                            ),
                             GestureDetector(
                               child: Padding(
                                 padding: const EdgeInsets.symmetric(
@@ -151,7 +156,8 @@ class _BottomModalSettingState extends State<BottomModalSetting> {
                                         children: [
                                           IconButton(
                                             onPressed: () {},
-                                            icon: const Icon(Icons.manage_accounts,
+                                            icon: const Icon(
+                                                Icons.manage_accounts,
                                                 color: Color(0xFFFFD789)),
                                           ),
                                           const Text(
