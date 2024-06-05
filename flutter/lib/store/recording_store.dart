@@ -33,6 +33,20 @@ class RecordingStore extends Cubit<List<Map<String, dynamic>>> {
     emit(newHistory.cast<Map<String, dynamic>>());
   }
 
+  Future<void> updateDisplayNameWithId(String id, String displayName) async {
+    final prefs = await SharedPreferences.getInstance();
+    final history = state;
+    final newHistory = history.map((e) {
+      if (e['id'] == id) {
+        e['displayName'] = displayName;
+      }
+      return e;
+    }).toList();
+    prefs.setStringList(
+        'recordingList', newHistory.map((e) => jsonEncode(e)).toList());
+    emit(newHistory.cast<Map<String, dynamic>>());
+  }
+
   Future<void> clear() async {
     final prefs = await SharedPreferences.getInstance();
     prefs.remove('recordingList');

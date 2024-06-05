@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:app_tutorial/app_tutorial.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -8,8 +9,10 @@ import 'package:path_provider/path_provider.dart';
 import 'package:record/record.dart';
 // ignore: depend_on_referenced_packages
 import 'package:path/path.dart' as p;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sumarizeit/page/record_audio/widget/list_recording_file.dart';
 import 'package:sumarizeit/store/recording_store.dart';
+import 'package:sumarizeit/tutorial/tutorial_component.dart';
 
 class RecordAudioPage extends StatefulWidget {
   const RecordAudioPage({super.key});
@@ -21,6 +24,7 @@ class RecordAudioPage extends StatefulWidget {
 class _RecordAudioPageState extends State<RecordAudioPage> {
   late final AudioRecorder _audioRecorder;
   String _nameFile = 'RecordingFile';
+  String _displayName = 'RecordingFile';
   Timer? _timer;
   String _path = '';
   int _recordDuration = 0;
@@ -30,9 +34,63 @@ class _RecordAudioPageState extends State<RecordAudioPage> {
   final _controllerTextName = TextEditingController(text: 'RecordingFile');
   late FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
 
+  final textRecoringKey = GlobalKey();
+  final recordKey = GlobalKey();
+  final listRecordKey = GlobalKey();
+  List<TutorialItem> items = [];
+
+  void initItems() {
+    items.addAll({
+      TutorialItem(
+        globalKey: textRecoringKey,
+        color: Colors.black.withOpacity(0.8),
+        shapeFocus: ShapeFocus.roundedSquare,
+        child: const TutorialItemContent(
+          title: 'Recording Name',
+          content: 'You can change the recording name here',
+        ),
+      ),
+      TutorialItem(
+        globalKey: recordKey,
+        color: Colors.black.withOpacity(0.8),
+        shapeFocus: ShapeFocus.oval,
+        child: const TutorialItemContent(
+          title: 'Record Button',
+          content: 'Press to start recording',
+        ),
+      ),
+      TutorialItem(
+        globalKey: listRecordKey,
+        color: Colors.black.withOpacity(0.8),
+        shapeFocus: ShapeFocus.oval,
+        child: const TutorialItemContent(
+          title: 'List Recording',
+          content: 'You can see the list of your recording here',
+        ),
+      ),
+    });
+  }
+
+  Future<void> _tutorail() async {
+    final prefs = await SharedPreferences.getInstance();
+    bool doneTutorial = prefs.getBool('doneTutorialAudio') ?? false;
+    if (doneTutorial) {
+      return;
+    }
+
+    initItems();
+    Future.delayed(const Duration(microseconds: 200)).then((value) {
+      Tutorial.showTutorial(context, items, onTutorialComplete: () {
+        HapticFeedback.heavyImpact();
+        prefs.setBool('doneTutorialAudio', true);
+      });
+    });
+  }
+
   @override
   void initState() {
     super.initState();
+    _tutorail();
     _audioRecorder = AudioRecorder();
     _recordSub = _audioRecorder.onStateChanged().listen((recordState) {
       _updateRecordState(recordState);
@@ -58,10 +116,20 @@ class _RecordAudioPageState extends State<RecordAudioPage> {
 
   Future<void> _generateFileName() async {
     final now = DateTime.now();
+    List<Map<String, dynamic>> nameList = context.read<RecordingStore>().state;
+    int count = 1;
+    // name of file auto increment and check if file name is exist
+    for (int i = 0; i < nameList.length; i++) {
+      if (nameList[i]['name'] == 'Recording $count') {
+        count++;
+        i = 0;
+      }
+    }
     setState(() {
       _nameFile =
           'Recording_${now.day}${now.month}${now.year}${now.hour}${now.minute}${now.second}';
-      _controllerTextName.text = _nameFile;
+      _displayName = 'Recording $count';
+      _controllerTextName.text = _displayName;
     });
   }
 
@@ -78,7 +146,7 @@ class _RecordAudioPageState extends State<RecordAudioPage> {
       case RecordState.stop:
         String randomUUID = DateTime.now().millisecondsSinceEpoch.toString();
         context.read<RecordingStore>().add(
-            '{"id": "$randomUUID","name":"$_nameFile", "duration":"$_recordDuration", "date":"${DateTime.now()}", "path":"$_path"}');
+            '{"id": "$randomUUID","displayName": "$_displayName","name":"$_nameFile", "duration":"$_recordDuration", "date":"${DateTime.now()}", "path":"$_path"}');
         _timer?.cancel();
         _recordDuration = 0;
         _generateFileName();
@@ -214,13 +282,18 @@ class _RecordAudioPageState extends State<RecordAudioPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Audio Recorder'),
-        actions: [CustomBottomSheet(parentContext: context)],
+        actions: [
+          Container(
+              key: listRecordKey,
+              child: CustomBottomSheet(parentContext: context))
+        ],
       ),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         children: <Widget>[
           SizedBox(height: screenHeight * 0.1),
           TextField(
+            key: textRecoringKey,
             controller: _controllerTextName,
             readOnly: _recordState != RecordState.stop,
             decoration: const InputDecoration(
@@ -234,7 +307,7 @@ class _RecordAudioPageState extends State<RecordAudioPage> {
             ),
             onChanged: (value) {
               setState(() {
-                _nameFile = value;
+                _displayName = value;
               });
             },
           ),
@@ -305,6 +378,7 @@ class _RecordAudioPageState extends State<RecordAudioPage> {
         GestureDetector(
           onTap: startRecording,
           child: Container(
+            key: recordKey,
             decoration: BoxDecoration(
               color: const Color.fromARGB(255, 33, 28, 20),
               borderRadius: BorderRadius.circular(200),

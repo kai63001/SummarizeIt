@@ -40,7 +40,7 @@ class CustomBottomSheet extends StatelessWidget {
                           return const ListTile(title: Text('No recording'));
                         }
                         return ListTile(
-                            title: Text(state[index]['name'] ?? 'No title',
+                            title: Text(state[index]['displayName'] ?? 'No title',
                                 style: const TextStyle(color: Colors.white)),
                             subtitle: _buildTimer(
                                 int.parse(state[index]['duration'].toString())),
@@ -53,6 +53,9 @@ class CustomBottomSheet extends StatelessWidget {
                                       builder: (context) => PlayAudioPage(
                                             id: state[index]['id'],
                                             name: state[index]['name'] ??
+                                                'No title',
+                                            displayName: state[index]
+                                                    ['displayName'] ??
                                                 'No title',
                                             audioPath: state[index]['path'],
                                             duration: state[index]['duration'],

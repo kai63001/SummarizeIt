@@ -17,11 +17,13 @@ class PlayAudioPage extends StatefulWidget {
   final String duration;
   final String name;
   final String id;
+  final String displayName;
   const PlayAudioPage(
       {super.key,
       required this.audioPath,
       required this.duration,
       required this.id,
+      required this.displayName,
       required this.name});
 
   @override
@@ -35,10 +37,12 @@ class _PlayAudioPageState extends State<PlayAudioPage> {
   bool isPlaying = false;
   StreamSubscription<Duration>? durationSubscription;
   StreamSubscription<Duration>? positionSubscription;
+  final TextEditingController _controllerTextName = TextEditingController();
 
   @override
   void initState() {
     super.initState();
+    _controllerTextName.text = widget.displayName;
     audioPlayer = AudioPlayer();
     durationSubscription = audioPlayer.onDurationChanged.listen((d) {
       if (mounted) setState(() => totalDuration = d);
@@ -327,8 +331,23 @@ class _PlayAudioPageState extends State<PlayAudioPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
-            Text(widget.name,
-                style: const TextStyle(color: Colors.white, fontSize: 20)),
+            TextField(
+              controller: _controllerTextName,
+              decoration: const InputDecoration(
+                hintText: 'File name',
+                border: InputBorder.none,
+              ),
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 20,
+              ),
+              onChanged: (value) {
+                context
+                    .read<RecordingStore>()
+                    .updateDisplayNameWithId(widget.id, _controllerTextName.text);
+              },
+            ),
             Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [

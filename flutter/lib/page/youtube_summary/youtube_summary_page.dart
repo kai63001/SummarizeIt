@@ -27,7 +27,6 @@ class _YotubeSummaryPageState extends State<YotubeSummaryPage> {
   };
 
   List<TutorialItem> items = [];
-  List<TutorialItem> items2 = [];
 
   final textSummaryKey = GlobalKey();
   final summitKey = GlobalKey();
@@ -71,7 +70,6 @@ class _YotubeSummaryPageState extends State<YotubeSummaryPage> {
         // print('Tutorial is complete!');
         HapticFeedback.heavyImpact();
 
-        HapticFeedback.heavyImpact();
         Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(
