@@ -378,6 +378,74 @@ class _MyHomePageState extends State<MyHomePage> {
                         ),
                       ),
                     ),
+                    //Card 4
+                    GestureDetector(
+                      onTap: () {
+                        HapticFeedback.heavyImpact();
+                        // Navigator.push(
+                        //   context,
+                        //   MaterialPageRoute(
+                        //       builder: (context) => const RecordAudioPage()),
+                        // );
+                        //Alert on implementation
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return AlertDialog(
+                              title: const Text('Coming Soon!'),
+                              content: const Text(
+                                  'This feature is under development. Stay tuned!'),
+                              actions: <Widget>[
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                  },
+                                  child: const Text('OK'),
+                                ),
+                              ],
+                            );
+                          },
+                        );
+                      },
+                      child: Card(
+                        color: const Color.fromARGB(255, 18, 18, 18),
+                        child: Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // logo in a circle
+                              Padding(
+                                padding: const EdgeInsets.only(bottom: 8.0),
+                                child: ClipRRect(
+                                  borderRadius: const BorderRadius.all(
+                                      Radius.circular(10)),
+                                  child: Container(
+                                    width: 50,
+                                    height: 50,
+                                    color: const Color(0xFFFFD789),
+                                    child: const Icon(Icons.web_rounded,
+                                        color: Color.fromRGBO(45, 45, 45, 1)),
+                                  ),
+                                ),
+                              ),
+                              // Text
+                              const Text('Web Page',
+                                  style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold)),
+                              Text(
+                                'Summarize your web page \n(Coming Soon!)',
+                                style: TextStyle(
+                                    //color secondary
+                                    color: theme.colorScheme.secondary),
+                              )
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
                   ],
                 ),
               ),
