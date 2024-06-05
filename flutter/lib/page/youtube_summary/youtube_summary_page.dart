@@ -1,10 +1,13 @@
 import 'dart:convert';
 
+import 'package:app_tutorial/app_tutorial.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:quickalert/models/quickalert_type.dart';
 import 'package:quickalert/widgets/quickalert_dialog.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sumarizeit/page/summary_done.dart';
+import 'package:sumarizeit/tutorial/tutorial_component.dart';
 import '../../contant/contants.dart';
 import 'package:http/http.dart' as http;
 
@@ -22,6 +25,76 @@ class _YotubeSummaryPageState extends State<YotubeSummaryPage> {
     'title': '',
     'thumbnail': '',
   };
+
+  List<TutorialItem> items = [];
+  List<TutorialItem> items2 = [];
+
+  final textSummaryKey = GlobalKey();
+  final summitKey = GlobalKey();
+  final summarizeButtonKey = GlobalKey();
+
+  void initItems() {
+    items.addAll({
+      TutorialItem(
+        globalKey: textSummaryKey,
+        color: Colors.black.withOpacity(0.8),
+        shapeFocus: ShapeFocus.roundedSquare,
+        child: const TutorialItemContent(
+          title: 'Youtube URL',
+          content: 'Paste your youtube link and summarize it in a few clicks',
+        ),
+      ),
+      TutorialItem(
+        globalKey: summitKey,
+        color: Colors.black.withOpacity(0.8),
+        shapeFocus: ShapeFocus.roundedSquare,
+        child: const TutorialItemContent(
+          title: 'Summarize Button',
+          content: 'Click here to show youtube summary data',
+        ),
+      ),
+    });
+  }
+
+  Future<void> _tutorail() async {
+    final prefs = await SharedPreferences.getInstance();
+    bool doneTutorial = prefs.getBool('doneTutorial') ?? false;
+    if (doneTutorial) {
+      return;
+    }
+
+    initItems();
+    Future.delayed(const Duration(microseconds: 200)).then((value) {
+      Tutorial.showTutorial(context, items, onTutorialComplete: () {
+        _controller.text = 'https://youtu.be/8jPQjjsBbIc?si=6xK5poIGDKm5FWtn';
+        // Code to be executed after the tutorial ends
+        // print('Tutorial is complete!');
+        HapticFeedback.heavyImpact();
+
+        HapticFeedback.heavyImpact();
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(
+            builder: (context) => SummaryDone(
+              text: _controller.text,
+              type: 'youtube-summary',
+              title:
+                  'How to stay calm when you know you\'ll be stressed | Daniel Levitin | TED',
+              youtubeUrl: _controller.text,
+              tutorial: true,
+            ),
+          ),
+          (Route<dynamic> route) => route.isFirst,
+        );
+      });
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _tutorail();
+  }
 
   Future<void> _submitYoutubeUrl() async {
     HapticFeedback.mediumImpact();
@@ -87,6 +160,7 @@ class _YotubeSummaryPageState extends State<YotubeSummaryPage> {
           children: [
             Expanded(
               child: ElevatedButton(
+                key: summarizeButtonKey,
                 onPressed: () {
                   HapticFeedback.heavyImpact();
                   Navigator.pushAndRemoveUntil(
@@ -156,6 +230,7 @@ class _YotubeSummaryPageState extends State<YotubeSummaryPage> {
         const SizedBox(height: 20),
         // Text Field
         TextField(
+          key: textSummaryKey,
           controller: _controller,
           decoration: const InputDecoration(
             hintText: 'Enter Youtube URL',
@@ -165,6 +240,7 @@ class _YotubeSummaryPageState extends State<YotubeSummaryPage> {
         const SizedBox(height: 20),
         // Submit Button
         ElevatedButton(
+            key: summitKey,
             onPressed: () {
               _submitYoutubeUrl();
             },

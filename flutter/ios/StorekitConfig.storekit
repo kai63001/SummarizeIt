@@ -10,7 +10,7 @@
     "_applicationInternalID" : "6503246906",
     "_developerTeamID" : "4426S2SFBM",
     "_failTransactionsEnabled" : false,
-    "_lastSynchronizedDate" : 739141115.98505795,
+    "_lastSynchronizedDate" : 739278006.43254602,
     "_locale" : "en_US",
     "_storefront" : "USA",
     "_storeKitErrors" : [
@@ -63,11 +63,11 @@
   },
   "subscriptionGroups" : [
     {
-      "id" : "21492938",
+      "id" : "21496032",
       "localizations" : [
 
       ],
-      "name" : "Pro",
+      "name" : "pro",
       "subscriptions" : [
         {
           "adHocOffers" : [
@@ -76,22 +76,18 @@
           "codeOffers" : [
 
           ],
-          "displayPrice" : "79.99",
+          "displayPrice" : "89.99",
           "familyShareable" : false,
           "groupNumber" : 1,
-          "internalID" : "6503247131",
+          "internalID" : "6503912529",
           "introductoryOffer" : null,
           "localizations" : [
-            {
-              "description" : "Annually",
-              "displayName" : "Annually",
-              "locale" : "en_US"
-            }
+
           ],
-          "productID" : "sumit_360",
+          "productID" : "sumit_360_sub",
           "recurringSubscriptionPeriod" : "P1Y",
           "referenceName" : "Annually",
-          "subscriptionGroupID" : "21492938",
+          "subscriptionGroupID" : "21496032",
           "type" : "RecurringSubscription"
         },
         {
@@ -101,22 +97,18 @@
           "codeOffers" : [
 
           ],
-          "displayPrice" : "12.99",
+          "displayPrice" : "14.99",
           "familyShareable" : false,
           "groupNumber" : 2,
-          "internalID" : "6503247264",
+          "internalID" : "6503912561",
           "introductoryOffer" : null,
           "localizations" : [
-            {
-              "description" : "Monthly",
-              "displayName" : "Monthly",
-              "locale" : "en_US"
-            }
+
           ],
-          "productID" : "sumit_30",
+          "productID" : "sumit_30_sub",
           "recurringSubscriptionPeriod" : "P1M",
           "referenceName" : "Monthly",
-          "subscriptionGroupID" : "21492938",
+          "subscriptionGroupID" : "21496032",
           "type" : "RecurringSubscription"
         },
         {
@@ -126,22 +118,18 @@
           "codeOffers" : [
 
           ],
-          "displayPrice" : "7.99",
+          "displayPrice" : "5.99",
           "familyShareable" : false,
           "groupNumber" : 3,
-          "internalID" : "6503247268",
+          "internalID" : "6503912748",
           "introductoryOffer" : null,
           "localizations" : [
-            {
-              "description" : "Weekly",
-              "displayName" : "Weekly",
-              "locale" : "en_US"
-            }
+
           ],
-          "productID" : "sumit_7",
+          "productID" : "sumit_7_sub",
           "recurringSubscriptionPeriod" : "P1W",
           "referenceName" : "Weekly",
-          "subscriptionGroupID" : "21492938",
+          "subscriptionGroupID" : "21496032",
           "type" : "RecurringSubscription"
         }
       ]

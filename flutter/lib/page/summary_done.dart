@@ -6,6 +6,7 @@ import 'package:http_parser/http_parser.dart';
 import 'package:purchases_ui_flutter/purchases_ui_flutter.dart';
 import 'package:quickalert/models/quickalert_type.dart';
 import 'package:quickalert/widgets/quickalert_dialog.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sumarizeit/main.dart';
 import 'package:sumarizeit/store/deviceId_store.dart';
 import 'package:sumarizeit/store/history_store.dart';
@@ -25,6 +26,7 @@ class SummaryDone extends StatefulWidget {
       this.audioId = '',
       this.audioDuration = 0,
       this.youtubeUrl = '',
+      this.tutorial = false,
       this.historyId = ''});
 
   final String text;
@@ -36,6 +38,7 @@ class SummaryDone extends StatefulWidget {
   final bool done;
   final String historyId;
   final String youtubeUrl;
+  final bool tutorial;
 
   @override
   State<SummaryDone> createState() => _SummaryDoneState();
@@ -54,8 +57,30 @@ class _SummaryDoneState extends State<SummaryDone>
   @override
   void initState() {
     super.initState();
-    _onSummary();
     _tabController = TabController(length: 2, vsync: this);
+    if (widget.tutorial) {
+      _onTutorial();
+      return;
+    }
+    _onSummary();
+  }
+
+  Future<void> _onTutorial() async {
+    //Delay for tutorial 4 second
+    Future.delayed(const Duration(seconds: 4), () {
+      setState(() {
+        _summaryText =
+            'The speaker recounts breaking into his own home after losing his keys, highlighting the impact of stress on decision-making. He explores the concept of a pre-mortem, anticipating potential failures and mitigating risks. Using examples from everyday life and medical decisions, he emphasizes the importance of informed decision-making, such as considering the number needed to treat in medical interventions. The pre-mortem approach aims to prepare for scenarios under stress, promoting rational thinking and minimizing potential harm. Practical suggestions like designating spots for important items and discussing risks with doctors are advised to prevent detrimental outcomes.';
+        _originalText = tutorailOriginalText;
+        _titleText = widget.title;
+        _isSummary = true;
+      });
+      alertSaveTime(12.20);
+      saveToHistory();
+    });
+
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setBool('doneTutorial', true);
   }
 
   @override
@@ -269,7 +294,8 @@ class _SummaryDoneState extends State<SummaryDone>
           // ignore: use_build_context_synchronously
           context: context,
           type: QuickAlertType.error,
-          title: 'This video has no transcript. feature on beta, please contact us if you need this feature',
+          title:
+              'This video has no transcript. feature on beta, please contact us if you need this feature',
           text: '🚨 $message',
         );
       }

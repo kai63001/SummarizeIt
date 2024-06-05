@@ -1,3 +1,4 @@
+import 'package:app_tutorial/app_tutorial.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -16,6 +17,7 @@ import 'package:sumarizeit/store/history_store.dart';
 import 'package:sumarizeit/store/purchase_store.dart';
 import 'package:sumarizeit/store/recording_store.dart';
 import 'package:sumarizeit/store/saved_time_store.dart';
+import 'package:sumarizeit/tutorial/tutorial_component.dart';
 
 final _configuration =
     PurchasesConfiguration("appl_pwKTuHxkhdQZXeXPFOePdNwPakZ");
@@ -70,18 +72,92 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  List<TutorialItem> items = [];
+
+  final textSummaryKey = GlobalKey();
+  final youtubeSummaryKey = GlobalKey();
+  final recordSummaryKey = GlobalKey();
+
+  Future<void> _tutorail() async {
+    final prefs = await SharedPreferences.getInstance();
+    bool doneTutorial = prefs.getBool('doneTutorial') ?? false;
+    if (doneTutorial) {
+      return;
+    }
+
+    initItems();
+    Future.delayed(const Duration(microseconds: 200)).then((value) {
+      Tutorial.showTutorial(context, items, onTutorialComplete: () {
+        // Code to be executed after the tutorial ends
+        // print('Tutorial is complete!');
+        HapticFeedback.heavyImpact();
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const YotubeSummaryPage()),
+        );
+      });
+    });
+  }
+
   @override
   void initState() {
     super.initState();
     getDeviceId();
     getPurchaseStatus();
+    _tutorail();
     _openPurchaseFirstTime();
+  }
+
+  void initItems() {
+    items.addAll({
+      TutorialItem(
+        globalKey: textSummaryKey,
+        color: Colors.black.withOpacity(0.8),
+        shapeFocus: ShapeFocus.roundedSquare,
+        child: const TutorialItemContent(
+          title: 'Text Document',
+          content: 'Summarize your text in a few clicks',
+        ),
+      ),
+      TutorialItem(
+        globalKey: youtubeSummaryKey,
+        color: Colors.black.withOpacity(0.8),
+        shapeFocus: ShapeFocus.roundedSquare,
+        child: const TutorialItemContent(
+          title: 'Youtube Summary',
+          content: 'Paste your youtube link and summarize it in a few clicks',
+        ),
+      ),
+      TutorialItem(
+        globalKey: recordSummaryKey,
+        color: Colors.black.withOpacity(0.8),
+        shapeFocus: ShapeFocus.roundedSquare,
+        child: const TutorialItemContent(
+          title: 'Record Audio & Summarize',
+          content: 'Record your audio and summarize it in a few clicks',
+        ),
+      ),
+      // go to youtube
+      TutorialItem(
+        globalKey: youtubeSummaryKey,
+        color: Colors.black.withOpacity(0.8),
+        shapeFocus: ShapeFocus.roundedSquare,
+        child: const TutorialItemContent(
+          title: 'Try Youtube Summary',
+          content: 'Click here to try youtube summary',
+        ),
+      ),
+    });
   }
 
   Future<void> _openPurchaseFirstTime() async {
     //save to shared preference
     final prefs = await SharedPreferences.getInstance();
     final bool isFirstTime = prefs.getBool('isFirstTime') ?? true;
+    bool doneTutorial = prefs.getBool('doneTutorial') ?? false;
+    if (!doneTutorial) {
+      return;
+    }
     if (isFirstTime) {
       prefs.setBool('isFirstTime', false);
       final paywallResult = await RevenueCatUI.presentPaywallIfNeeded("pro");
@@ -156,6 +232,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   children: [
                     // Card 1
                     GestureDetector(
+                      key: textSummaryKey,
                       onTap: () {
                         HapticFeedback.heavyImpact();
                         Navigator.push(
@@ -205,6 +282,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     ),
                     // Card 2
                     GestureDetector(
+                      key: youtubeSummaryKey,
                       onTap: () {
                         HapticFeedback.heavyImpact();
                         Navigator.push(
@@ -253,6 +331,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     ),
                     // Card 3
                     GestureDetector(
+                      key: recordSummaryKey,
                       onTap: () {
                         HapticFeedback.heavyImpact();
                         Navigator.push(
