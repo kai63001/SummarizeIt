@@ -1,3 +1,4 @@
+import 'package:app_tracking_transparency/app_tracking_transparency.dart';
 import 'package:app_tutorial/app_tutorial.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -77,6 +78,7 @@ class _MyHomePageState extends State<MyHomePage> {
   final textSummaryKey = GlobalKey();
   final youtubeSummaryKey = GlobalKey();
   final recordSummaryKey = GlobalKey();
+  String _authStatus = 'Unknown';
 
   Future<void> _tutorail() async {
     final prefs = await SharedPreferences.getInstance();
@@ -106,7 +108,29 @@ class _MyHomePageState extends State<MyHomePage> {
     getPurchaseStatus();
     _tutorail();
     _openPurchaseFirstTime();
+
+    WidgetsFlutterBinding.ensureInitialized().addPostFrameCallback((_) => initPlugin());
   }
+
+  // Platform messages are asynchronous, so we initialize in an async method.
+  Future<void> initPlugin() async {
+    final TrackingStatus status =
+        await AppTrackingTransparency.trackingAuthorizationStatus;
+    setState(() => _authStatus = '$status');
+    // If the system can show an authorization request dialog
+    if (status == TrackingStatus.notDetermined) {
+      // Wait for dialog popping animation
+      await Future.delayed(const Duration(milliseconds: 200));
+      // Request system's tracking authorization dialog
+      final TrackingStatus status =
+          await AppTrackingTransparency.requestTrackingAuthorization();
+      setState(() => _authStatus = '$status');
+    }
+
+    final uuid = await AppTrackingTransparency.getAdvertisingIdentifier();
+    print("UUID: $uuid");
+  }
+
 
   void initItems() {
     items.addAll({
