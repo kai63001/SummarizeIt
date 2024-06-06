@@ -40,13 +40,15 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSMicrophoneUsageDescription</key>
-	<string>Some message to describe why you need this permission</string>
+	<string>To record audio and summarize it</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>To upload photos, please allow permission to access your photo library.</string>
 	<key>NSCameraUsageDescription</key>
 	<string>We need access to your camera to allow you to take pictures to summarize.</string>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>NSUserTrackingUsageDescription</key>
+	<string>To provide a better user experience, we need to track your usage of the app.And tracking spammer</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>audio</string>
