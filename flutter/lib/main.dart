@@ -104,50 +104,31 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
+    WidgetsFlutterBinding.ensureInitialized()
+        .addPostFrameCallback((_) => initPlugin());
+
     getDeviceId();
     getPurchaseStatus();
     _tutorail();
     _openPurchaseFirstTime();
 
-    WidgetsFlutterBinding.ensureInitialized()
-        .addPostFrameCallback((_) => initPlugin());
   }
 
-  // Platform messages are asynchronous, so we initialize in an async method.
   Future<void> initPlugin() async {
     final TrackingStatus status =
         await AppTrackingTransparency.trackingAuthorizationStatus;
     setState(() => _authStatus = '$status');
-    // If the system can show an authorization request dialog
     if (status == TrackingStatus.notDetermined) {
-      await showCustomTrackingDialog(context);
-      // Wait for dialog popping animation
       await Future.delayed(const Duration(milliseconds: 200));
-      // Request system's tracking authorization dialog
       final TrackingStatus status =
           await AppTrackingTransparency.requestTrackingAuthorization();
       setState(() => _authStatus = '$status');
     }
 
     final uuid = await AppTrackingTransparency.getAdvertisingIdentifier();
-    print("UUID: $uuid");
+    debugPrint("UUID: $uuid");
   }
 
-  Future<void> showCustomTrackingDialog(BuildContext context) async =>
-      await showDialog<void>(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: const Text('Dear User'),
-          content: const Text(
-              'We use data to track spam and monitor token usage for our GPT features. This helps us ensure the quality and security of our service. Please note that we do not use this data for advertising purposes.'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Continue'),
-            ),
-          ],
-        ),
-      );
 
   void initItems() {
     items.addAll({
