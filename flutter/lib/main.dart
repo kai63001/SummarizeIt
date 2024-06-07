@@ -78,6 +78,7 @@ class _MyHomePageState extends State<MyHomePage> {
   final textSummaryKey = GlobalKey();
   final youtubeSummaryKey = GlobalKey();
   final recordSummaryKey = GlobalKey();
+  // ignore: unused_field
   String _authStatus = 'Unknown';
 
   Future<void> _tutorail() async {
