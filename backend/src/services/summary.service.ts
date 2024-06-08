@@ -41,7 +41,11 @@ export class SummaryService {
     const summary = await this.openai.textSummary(text);
 
     // save to db
-    await SummaryModel.create({ deviceId, textLength: text.length });
+    try {
+      await SummaryModel.create({ deviceId, textLength: text.length });
+    } catch (error) {
+      logger.error(error);
+    }
 
     return {
       text,
@@ -69,11 +73,48 @@ export class SummaryService {
     const summary = await this.openai.textSummary(text);
     logger.info('Summary generated successfully.');
 
-    // save to db
-    await SummaryModel.create({ deviceId, textLength: text.length });
+    try {
+      // save to db
+      await SummaryModel.create({ deviceId, textLength: text.length });
+    } catch (error) {
+      console.error(error);
+    }
 
     return {
       text,
+      summary,
+    };
+  }
+
+  /**
+   * Makes the text shorter or longer based on the specified status.
+   * @param fullText - The full text to be summarized.
+   * @param summarizeText - The text used for summarization.
+   * @param status - The status indicating whether to make the text shorter or longer.
+   * @returns A Promise that resolves to an object containing the full text, summarize text, and the generated summary.
+   * @throws Error if the text input is too long or invalid.
+   */
+  public async makeItShorterOrLonger(fullText: string, summarizeText: string, status: 'shorter' | 'longer'): Promise<any> {
+    const tokens = await this.countTokens(fullText);
+    logger.info(`Token input: ${tokens}`);
+    // limit characters to 200000
+    if (fullText.length > 200000) {
+      throw new Error('Text input is too long limit to 200,000 characters');
+    }
+    if (typeof fullText !== 'string' || fullText.trim() === '') {
+      throw new Error('Invalid text input');
+    }
+    let summary = '';
+    if (status === 'shorter') {
+      summary = await this.openai.makeItShortter(fullText, summarizeText);
+    } else {
+      summary = await this.openai.makeItLonger(fullText, summarizeText);
+    }
+    logger.info('Summary generated successfully.');
+
+    return {
+      fullText,
+      summarizeText,
       summary,
     };
   }
@@ -136,8 +177,12 @@ export class SummaryService {
     // convert sum to mins
     const time = Math.ceil(sum / 60);
 
-    // save to db
-    await SummaryModel.create({ deviceId, textLength: text.length });
+    try {
+      // save to db
+      await SummaryModel.create({ deviceId, textLength: text.length });
+    } catch (error) {
+      console.error(error);
+    }
 
     return {
       text: he.decode(text),
@@ -192,8 +237,12 @@ export class SummaryService {
 
     const { summary } = await this.openai.youtubeSummary(text);
 
-    // save to db
-    await SummaryModel.create({ deviceId, textLength: text.length });
+    try {
+      // save to db
+      await SummaryModel.create({ deviceId, textLength: text.length });
+    } catch (error) {
+      console.error(error);
+    }
 
     return {
       text: he.decode(text),

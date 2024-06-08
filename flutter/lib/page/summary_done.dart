@@ -1,8 +1,11 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:html_unescape/html_unescape.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
+import 'package:intl/intl.dart';
 import 'package:purchases_ui_flutter/purchases_ui_flutter.dart';
 import 'package:quickalert/models/quickalert_type.dart';
 import 'package:quickalert/widgets/quickalert_dialog.dart';
@@ -12,6 +15,7 @@ import 'package:sumarizeit/store/deviceId_store.dart';
 import 'package:sumarizeit/store/history_store.dart';
 import 'package:sumarizeit/store/purchase_store.dart';
 import 'package:sumarizeit/store/saved_time_store.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../contant/contants.dart';
 import 'dart:convert';
 
@@ -46,11 +50,14 @@ class SummaryDone extends StatefulWidget {
 
 class _SummaryDoneState extends State<SummaryDone>
     with SingleTickerProviderStateMixin {
+  DateFormat formatDate = DateFormat("HH:mm dd-MM-yy");
   bool _isSummary = false;
   String _summaryText = '';
   String _originalText = '';
   String _transcriptText = '';
   String _titleText = '';
+  String _date = '';
+  String _youtubeUrl = '';
   late TabController _tabController;
   final ThemeData theme = ThemeData();
   //init
@@ -73,6 +80,8 @@ class _SummaryDoneState extends State<SummaryDone>
             'The speaker recounts breaking into his own home after losing his keys, highlighting the impact of stress on decision-making. He explores the concept of a pre-mortem, anticipating potential failures and mitigating risks. Using examples from everyday life and medical decisions, he emphasizes the importance of informed decision-making, such as considering the number needed to treat in medical interventions. The pre-mortem approach aims to prepare for scenarios under stress, promoting rational thinking and minimizing potential harm. Practical suggestions like designating spots for important items and discussing risks with doctors are advised to prevent detrimental outcomes.';
         _originalText = tutorailOriginalText;
         _titleText = widget.title;
+        _date = formatDate.format(DateTime.parse(DateTime.now().toString()));
+        _youtubeUrl = widget.youtubeUrl;
         _isSummary = true;
       });
       alertSaveTime(12.20);
@@ -116,6 +125,9 @@ class _SummaryDoneState extends State<SummaryDone>
           _summaryText = element['summary'];
           _originalText = element['original'];
           _titleText = element['title'];
+          _transcriptText = element['transcript'];
+          _date = formatDate.format(DateTime.parse(element['date']));
+          _youtubeUrl = element['youtubeUrl'];
           _isSummary = true;
         });
       }
@@ -132,6 +144,7 @@ class _SummaryDoneState extends State<SummaryDone>
           _originalText = history[i]['original'];
           _titleText = history[i]['title'];
           _transcriptText = history[i]['transcript'];
+          _date = formatDate.format(DateTime.parse(history[i]['date']));
           _isSummary = true;
         });
         return true;
@@ -148,6 +161,7 @@ class _SummaryDoneState extends State<SummaryDone>
       final paywallResult = await RevenueCatUI.presentPaywallIfNeeded("pro");
       debugPrint("paywallResult: $paywallResult");
       Navigator.pushAndRemoveUntil(
+        // ignore: use_build_context_synchronously
         context,
         MaterialPageRoute(
           builder: (context) => const MyApp(),
@@ -169,6 +183,8 @@ class _SummaryDoneState extends State<SummaryDone>
           _originalText = history[i]['original'];
           _titleText = history[i]['title'];
           _transcriptText = history[i]['transcript'];
+          _date = formatDate.format(DateTime.parse(history[i]['date']));
+          _youtubeUrl = history[i]['youtubeUrl'];
           _isSummary = true;
         });
         return true;
@@ -256,6 +272,7 @@ class _SummaryDoneState extends State<SummaryDone>
               responseBody['data']['summary']['summary']; // Change this line
           _originalText = responseBody['data']['text'];
           _titleText = responseBody['data']['summary']['title'];
+          _youtubeUrl = widget.youtubeUrl;
         });
         try {
           //get data audio with id
@@ -362,11 +379,128 @@ class _SummaryDoneState extends State<SummaryDone>
         }));
   }
 
+  Future<void> lunchYoutube() async {
+    var url = _youtubeUrl;
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      throw 'Could not launch $url';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Summary'),
+        // bottom modal setting
+        actions: [
+          IconButton(
+            onPressed: () {
+              showModalBottomSheet(
+                context: context,
+                isScrollControlled: true,
+                backgroundColor: Colors.transparent,
+                builder: (context) {
+                  return DraggableScrollableSheet(
+                      initialChildSize: 0.3, // Initial height of the Sheet
+                      minChildSize: 0.1, // Minimum height of the Sheet
+                      maxChildSize: 1, // Maximum height of the Sheet
+                      builder: (BuildContext context,
+                          ScrollController scrollController) {
+                        return ClipRRect(
+                          borderRadius: const BorderRadius.only(
+                            topLeft: Radius.circular(20),
+                            topRight: Radius.circular(20),
+                          ),
+                          child: Container(
+                            color: const Color(0xFF14141A),
+                            child: Column(
+                              children: [
+                                // Custom drag handle
+                                Container(
+                                  margin: const EdgeInsets.all(10),
+                                  height: 5,
+                                  width: 30,
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey[
+                                        300], // Change this to your desired color
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                ),
+                                GestureDetector(
+                                  onTap: () {},
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 15.0, vertical: 5.0),
+                                    child: Container(
+                                        decoration: const BoxDecoration(
+                                          color:
+                                              Color.fromARGB(255, 43, 43, 54),
+                                          borderRadius: BorderRadius.all(
+                                              Radius.circular(10)),
+                                        ),
+                                        child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.start,
+                                            children: [
+                                              IconButton(
+                                                onPressed: () {},
+                                                icon: const Icon(
+                                                    Icons.short_text_rounded),
+                                              ),
+                                              const Text(
+                                                'Make shorter',
+                                                style: TextStyle(
+                                                    color: Colors.white,
+                                                    fontWeight:
+                                                        FontWeight.bold),
+                                              )
+                                            ])),
+                                  ),
+                                ),
+                                GestureDetector(
+                                  onTap: () {},
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 15.0, vertical: 5.0),
+                                    child: Container(
+                                        decoration: const BoxDecoration(
+                                          color:
+                                              Color.fromARGB(255, 43, 43, 54),
+                                          borderRadius: BorderRadius.all(
+                                              Radius.circular(10)),
+                                        ),
+                                        child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.start,
+                                            children: [
+                                              IconButton(
+                                                onPressed: () {},
+                                                icon: const Icon(
+                                                    Icons.line_style_rounded),
+                                              ),
+                                              const Text(
+                                                'Make longer',
+                                                style: TextStyle(
+                                                    color: Colors.white,
+                                                    fontWeight:
+                                                        FontWeight.bold),
+                                              )
+                                            ])),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      });
+                },
+              );
+            },
+            icon: const Icon(Icons.list_outlined),
+          ),
+        ],
       ),
       body: !_isSummary ? _loading() : _summary(),
     );
@@ -374,18 +508,61 @@ class _SummaryDoneState extends State<SummaryDone>
 
   Widget _summary() {
     return Padding(
-      padding: const EdgeInsets.all(20.0),
+      padding: const EdgeInsets.symmetric(horizontal: 20.0),
       child: Column(
         children: [
-          const SizedBox(
-            height: 5,
-          ),
           Text(
             _titleText,
             style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
           const SizedBox(
-            height: 20,
+            height: 5,
+          ),
+          // now date format
+          Row(
+            children: [
+              const Icon(
+                Icons.access_time,
+                size: 15,
+                color: Colors.grey,
+              ),
+              const SizedBox(
+                width: 5,
+              ),
+              Flexible(
+                child: Text(
+                  _date,
+                  style: const TextStyle(fontSize: 12, color: Colors.grey),
+                ),
+              ),
+            ],
+          ),
+          if (_youtubeUrl.isNotEmpty)
+            GestureDetector(
+              onTap: () {
+                lunchYoutube();
+              },
+              child: Row(
+                children: [
+                  const Icon(
+                    Icons.link,
+                    size: 15,
+                    color: Colors.grey,
+                  ),
+                  const SizedBox(
+                    width: 5,
+                  ),
+                  Flexible(
+                    child: Text(
+                      _youtubeUrl,
+                      style: const TextStyle(fontSize: 12, color: Colors.grey),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          const SizedBox(
+            height: 10,
           ),
           Container(
             height: 40,

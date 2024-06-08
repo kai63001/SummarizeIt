@@ -60,6 +60,103 @@ export class OpenAIService {
     }
   }
 
+  public async makeItShortter(fullText: string, summary: string): Promise<string> {
+    const completion = await this.openai.chat.completions.create({
+      messages: [
+        {
+          role: 'system',
+          content: `Create a concise summary of the provided text, focusing on its key points and main ideas. Include relevant details and examples to support these main ideas. Ensure the summary is clear and easy to understand, capturing all essential information without any unnecessary repetition. The length of the summary should be appropriate to the original text's complexity, offering a thorough overview without omitting crucial details and I want time that this summary save in a sec. and return me json like this {summary: 'summary',title: 'title', time: 5} time is in mins. time base on your text complexity. that mean if your text is complex then time is more and if your text is simple then time is less.`,
+        },
+        {
+          role: 'user',
+          content:
+            'What is a large language model (LLM)? A large language model (LLM) is a type of artificial intelligence (AI) program that can recognize and generate text, among other tasks. LLMs are trained on huge sets of data',
+        },
+        {
+          role: 'assistant',
+          content:
+            'A large language model (LLM) is a type of artificial intelligence (AI) program that can recognize and generate text, among other tasks. LLMs are trained on huge sets of data',
+        },
+        {
+          role: 'user',
+          content: 'make it shorter',
+        },
+        {
+          role: 'assistant',
+          content: 'A large language model (LLM) is an AI program trained on vast data sets to recognize and generate text.',
+        },
+        {
+          role: 'user',
+          content: fullText,
+        },
+        {
+          role: 'assistant',
+          content: summary,
+        },
+        {
+          role: 'user',
+          content: 'make it shorter',
+        },
+      ],
+      model: 'gpt-3.5-turbo',
+    });
+
+    const output = completion.choices[0].message.content;
+    const response = JSON.parse(jsonrepair(output));
+    //log token usage
+    logger.info(`Token usage: ${completion.usage.total_tokens}`);
+    return response;
+  }
+
+  public async makeItLonger(fullText: string, summary: string): Promise<string> {
+    const completion = await this.openai.chat.completions.create({
+      messages: [
+        {
+          role: 'system',
+          content: `Create a concise summary of the provided text, focusing on its key points and main ideas. Include relevant details and examples to support these main ideas. Ensure the summary is clear and easy to understand, capturing all essential information without any unnecessary repetition. The length of the summary should be appropriate to the original text's complexity, offering a thorough overview without omitting crucial details and I want time that this summary save in a sec. and return me json like this {summary: 'summary',title: 'title', time: 5} time is in mins. time base on your text complexity. that mean if your text is complex then time is more and if your text is simple then time is less.`,
+        },
+        {
+          role: 'user',
+          content:
+            'What is a large language model (LLM)? A large language model (LLM) is a type of artificial intelligence (AI) program that can recognize and generate text, among other tasks. LLMs are trained on huge sets of data',
+        },
+        {
+          role: 'assistant',
+          content:
+            'A large language model (LLM) is a type of artificial intelligence (AI) program that can recognize and generate text, among other tasks. LLMs are trained on huge sets of data',
+        },
+        {
+          role: 'user',
+          content: 'make it longer',
+        },
+        {
+          role: 'assistant',
+          content:
+            'A large language model (LLM) is a sophisticated artificial intelligence (AI) program designed to understand and produce human language. These models are capable of recognizing and generating text, performing various language-related tasks, and responding to different contexts',
+        },
+        {
+          role: 'user',
+          content: fullText,
+        },
+        {
+          role: 'assistant',
+          content: summary,
+        },
+        {
+          role: 'user',
+          content: 'make it longer',
+        },
+      ],
+      model: 'gpt-3.5-turbo',
+    });
+
+    const output = completion.choices[0].message.content;
+    const response = JSON.parse(jsonrepair(output));
+    //log token usage
+    logger.info(`Token usage: ${completion.usage.total_tokens}`);
+    return response;
+  }
+
   public async youtubeSummary(text: string): Promise<any> {
     const completion = await this.openai.chat.completions.create({
       messages: [
@@ -134,7 +231,6 @@ export class OpenAIService {
     });
 
     const output = completion.choices[0].message.content;
-    console.log(output);
     const response = JSON.parse(jsonrepair(output));
     //log token usage
     logger.info(`Token usage: ${completion.usage.total_tokens}`);
