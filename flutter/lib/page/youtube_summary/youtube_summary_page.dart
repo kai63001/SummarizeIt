@@ -36,7 +36,7 @@ class _YotubeSummaryPageState extends State<YotubeSummaryPage> {
     items.addAll({
       TutorialItem(
         globalKey: textSummaryKey,
-        color: Colors.black.withOpacity(0.8),
+        color: const Color.fromARGB(255, 61, 61, 61).withOpacity(0.8),
         shapeFocus: ShapeFocus.roundedSquare,
         child: const TutorialItemContent(
           title: 'Youtube URL',
@@ -45,7 +45,7 @@ class _YotubeSummaryPageState extends State<YotubeSummaryPage> {
       ),
       TutorialItem(
         globalKey: summitKey,
-        color: Colors.black.withOpacity(0.8),
+        color: const Color.fromARGB(255, 61, 61, 61).withOpacity(0.8),
         shapeFocus: ShapeFocus.roundedSquare,
         child: const TutorialItemContent(
           title: 'Summarize Button',

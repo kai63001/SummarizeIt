@@ -135,7 +135,7 @@ class _MyHomePageState extends State<MyHomePage> {
     items.addAll({
       TutorialItem(
         globalKey: textSummaryKey,
-        color: Colors.black.withOpacity(0.8),
+        color: const Color.fromARGB(255, 61, 61, 61).withOpacity(0.8),
         shapeFocus: ShapeFocus.roundedSquare,
         child: const TutorialItemContent(
           title: 'Text Document',
@@ -144,7 +144,7 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       TutorialItem(
         globalKey: youtubeSummaryKey,
-        color: Colors.black.withOpacity(0.8),
+        color: const Color.fromARGB(255, 61, 61, 61).withOpacity(0.8),
         shapeFocus: ShapeFocus.roundedSquare,
         child: const TutorialItemContent(
           title: 'Youtube Summary',
@@ -153,7 +153,7 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       TutorialItem(
         globalKey: recordSummaryKey,
-        color: Colors.black.withOpacity(0.8),
+        color: const Color.fromARGB(255, 61, 61, 61).withOpacity(0.8),
         shapeFocus: ShapeFocus.roundedSquare,
         child: const TutorialItemContent(
           title: 'Record Audio & Summarize',
@@ -163,7 +163,7 @@ class _MyHomePageState extends State<MyHomePage> {
       // go to youtube
       TutorialItem(
         globalKey: youtubeSummaryKey,
-        color: Colors.black.withOpacity(0.8),
+        color: const Color.fromARGB(255, 61, 61, 61).withOpacity(0.8),
         shapeFocus: ShapeFocus.roundedSquare,
         child: const TutorialItemContent(
           title: 'Try Youtube Summary',

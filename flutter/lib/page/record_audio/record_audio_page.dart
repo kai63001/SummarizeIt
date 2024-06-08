@@ -43,7 +43,7 @@ class _RecordAudioPageState extends State<RecordAudioPage> {
     items.addAll({
       TutorialItem(
         globalKey: textRecoringKey,
-        color: Colors.black.withOpacity(0.8),
+        color: const Color.fromARGB(255, 61, 61, 61).withOpacity(0.8),
         shapeFocus: ShapeFocus.roundedSquare,
         child: const TutorialItemContent(
           title: 'Recording Name',
@@ -52,7 +52,7 @@ class _RecordAudioPageState extends State<RecordAudioPage> {
       ),
       TutorialItem(
         globalKey: recordKey,
-        color: Colors.black.withOpacity(0.8),
+        color: const Color.fromARGB(255, 61, 61, 61).withOpacity(0.8),
         shapeFocus: ShapeFocus.oval,
         child: const TutorialItemContent(
           title: 'Record Button',
@@ -61,7 +61,7 @@ class _RecordAudioPageState extends State<RecordAudioPage> {
       ),
       TutorialItem(
         globalKey: listRecordKey,
-        color: Colors.black.withOpacity(0.8),
+        color: const Color.fromARGB(255, 61, 61, 61).withOpacity(0.8),
         shapeFocus: ShapeFocus.oval,
         child: const TutorialItemContent(
           title: 'List Recording',
