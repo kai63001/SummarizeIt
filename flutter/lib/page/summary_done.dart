@@ -72,6 +72,8 @@ class _SummaryDoneState extends State<SummaryDone>
     super.initState();
     setState(() {
       _id = DateTime.now().toString();
+      _youtubeUrl = widget.youtubeUrl;
+      _date = formatDate.format(DateTime.parse(DateTime.now().toString()));
     });
     _tabController = TabController(length: 2, vsync: this);
     if (widget.tutorial) {

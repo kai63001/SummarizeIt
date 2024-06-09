@@ -65,7 +65,7 @@ export class OpenAIService {
       messages: [
         {
           role: 'system',
-          content: `To create a concise summary of the provided text that focuses on key points and main ideas, it's essential to extract and emphasize the most relevant details and examples that support the main ideas. The summary should be clear and understandable, ensuring that all essential information is captured without unnecessary repetition. The length should be proportionate to the complexity of the original text, offering a thorough overview without omitting crucial details. When handling Thai language input, the summary will be returned in the original Thai language to maintain consistency with the input. This summary process will be efficient, aiming to complete within a second`,
+          content: `To create a concise summary of the provided text that focuses on key points and main ideas, it's essential to extract and emphasize the most relevant details and examples that support the main ideas. The summary should be clear and understandable, ensuring that all essential information is captured without unnecessary repetition. The length should be proportionate to the complexity of the original text, offering a thorough overview without omitting crucial details. When handling ... language input, the summary will be returned in the original ... language to maintain consistency with the input. This summary process will be efficient, aiming to complete within a second`,
         },
         {
           role: 'user',
@@ -112,7 +112,7 @@ export class OpenAIService {
       messages: [
         {
           role: 'system',
-          content: `To create a concise summary of the provided text that focuses on key points and main ideas, it's essential to extract and emphasize the most relevant details and examples that support the main ideas. The summary should be clear and understandable, ensuring that all essential information is captured without unnecessary repetition. The length should be proportionate to the complexity of the original text, offering a thorough overview without omitting crucial details. When handling Thai language input, the summary will be returned in the original Thai language to maintain consistency with the input. This summary process will be efficient, aiming to complete within a second`,
+          content: `To create a concise summary of the provided text that focuses on key points and main ideas, it's essential to extract and emphasize the most relevant details and examples that support the main ideas. The summary should be clear and understandable, ensuring that all essential information is captured without unnecessary repetition. The length should be proportionate to the complexity of the original text, offering a thorough overview without omitting crucial details. When handling ... language input, the summary will be returned in the original ... language to maintain consistency with the input. This summary process will be efficient, aiming to complete within a second`,
         },
         {
           role: 'user',
@@ -160,7 +160,7 @@ export class OpenAIService {
       messages: [
         {
           role: 'system',
-          content: `To create a concise summary of the provided text that focuses on key points and main ideas, it's essential to extract and emphasize the most relevant details and examples that support the main ideas. The summary should be clear and understandable, ensuring that all essential information is captured without unnecessary repetition. The length should be proportionate to the complexity of the original text, offering a thorough overview without omitting crucial details. When handling Thai language input, the summary will be returned in the original Thai language to maintain consistency with the input. This summary process will be efficient, aiming to complete within a second, and the result will be returned in a JSON format like this: {summary: 'summary'}.`,
+          content: `To create a concise summary of the provided text that focuses on key points and main ideas, it's essential to extract and emphasize the most relevant details and examples that support the main ideas. The summary should be clear and understandable, ensuring that all essential information is captured without unnecessary repetition. The length should be proportionate to the complexity of the original text, offering a thorough overview without omitting crucial details. When handling ... language input, the summary will be returned in the original ... language to maintain consistency with the input. This summary process will be efficient, aiming to complete within a second, and the result will be returned in a JSON format like this: {summary: 'summary'}.`,
         },
         {
           role: 'user',
