@@ -30,6 +30,7 @@ class SummaryDone extends StatefulWidget {
       this.audioId = '',
       this.audioDuration = 0,
       this.youtubeUrl = '',
+      this.lang = 'en',
       this.tutorial = false,
       this.historyId = ''});
 
@@ -39,6 +40,7 @@ class SummaryDone extends StatefulWidget {
   final String pathAudioFile;
   final String audioId;
   final double audioDuration;
+  final String lang;
   final bool done;
   final String historyId;
   final String youtubeUrl;
@@ -117,10 +119,6 @@ class _SummaryDoneState extends State<SummaryDone>
   }
 
   void timeSavedSaveToStorage(double time) async {
-    // var formattedTime = time.toStringAsFixed(2);
-    // final prefs = await SharedPreferences.getInstance();
-    // final timeSaved = prefs.getDouble('timeSaved') ?? 0;
-    // prefs.setDouble('timeSaved', timeSaved + double.parse(formattedTime));
     final timeBloc = context.read<SavedTimeStore>();
     timeBloc.increment(time);
   }
@@ -192,7 +190,7 @@ class _SummaryDoneState extends State<SummaryDone>
     List<Map<String, dynamic>> history = context.read<HistoryStore>().state;
     for (var i = 0; i < history.length; i++) {
       if (history[i]['type'] == 'youtube-summary' &&
-          history[i]['youtubeUrl'] == widget.youtubeUrl) {
+          history[i]['youtubeUrl'] == widget.youtubeUrl && history[i]['lang'] == widget.lang) {
         setState(() {
           _id = history[i]['id'];
           _summaryText = history[i]['summary'];
@@ -262,7 +260,7 @@ class _SummaryDoneState extends State<SummaryDone>
       response = await http.Response.fromStream(await request.send());
     } else {
       api = Uri.parse('$apiUrl/summary/youtube-summary');
-      body = {'url': widget.text, 'deviceId': deviceId};
+      body = {'url': widget.text, 'deviceId': deviceId, 'title': widget.title, 'lang': widget.lang};
       response = await http.post(
         api,
         body: body,
@@ -464,6 +462,7 @@ class _SummaryDoneState extends State<SummaryDone>
           'date': DateTime.now().toString(),
           'audioId': widget.audioId,
           'youtubeUrl': widget.youtubeUrl,
+          'lang': widget.lang
         }));
   }
 

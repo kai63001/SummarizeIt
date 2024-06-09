@@ -20,10 +20,12 @@ class YotubeSummaryPage extends StatefulWidget {
 
 class _YotubeSummaryPageState extends State<YotubeSummaryPage> {
   final TextEditingController _controller = TextEditingController();
+  String _lang = 'en';
   bool _isGetYoutubeData = false;
   Map<String, dynamic> _youtubeData = {
     'title': '',
     'thumbnail': '',
+    'lang': ['en']
   };
 
   List<TutorialItem> items = [];
@@ -80,6 +82,7 @@ class _YotubeSummaryPageState extends State<YotubeSummaryPage> {
                   'How to stay calm when you know you\'ll be stressed | Daniel Levitin | TED',
               youtubeUrl: _controller.text,
               tutorial: true,
+              lang: 'en',
             ),
           ),
           (Route<dynamic> route) => route.isFirst,
@@ -123,6 +126,9 @@ class _YotubeSummaryPageState extends State<YotubeSummaryPage> {
         _isGetYoutubeData = true;
         _youtubeData = responseBody['data'];
       });
+      if (_youtubeData['lang'].length > 0) {
+        _lang = _youtubeData['lang'].contains('en') ? 'en' : _youtubeData['lang'][0];
+      }
     } else {
       throw Exception('Failed to load summary');
     }
@@ -147,7 +153,8 @@ class _YotubeSummaryPageState extends State<YotubeSummaryPage> {
     return ListView(
       children: [
         const SizedBox(height: 20),
-        Image.network(_youtubeData['thumbnail']),
+        if (_youtubeData['thumbnail'] != null)
+          Image.network(_youtubeData['thumbnail']),
         const SizedBox(height: 20),
         Text(
           _youtubeData['title'],
@@ -156,6 +163,94 @@ class _YotubeSummaryPageState extends State<YotubeSummaryPage> {
         const SizedBox(height: 20),
         Row(
           children: [
+            ElevatedButton(
+              onPressed: () {
+                HapticFeedback.heavyImpact();
+                //bottom sheet select language
+                showModalBottomSheet(
+                  context: context,
+                  isScrollControlled: true,
+                  backgroundColor: Colors.transparent,
+                  builder: (context) {
+                    return DraggableScrollableSheet(
+                        initialChildSize: 0.8, // Initial height of the Sheet
+                        minChildSize: 0.1, // Minimum height of the Sheet
+                        maxChildSize: 1, // Maximum height of the Sheet
+                        builder: (BuildContext context,
+                            ScrollController scrollController) {
+                          return ClipRRect(
+                            borderRadius: const BorderRadius.only(
+                              topLeft: Radius.circular(20),
+                              topRight: Radius.circular(20),
+                            ),
+                            child: Container(
+                              color: const Color(0xFF14141A),
+                              child: Column(
+                                children: [
+                                  // Custom drag handle
+                                  Container(
+                                    margin: const EdgeInsets.all(10),
+                                    height: 5,
+                                    width: 30,
+                                    decoration: BoxDecoration(
+                                      color: Colors.grey[
+                                          300], // Change this to your desired color
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                  ),
+                                  Wrap(
+                                   direction: Axis.horizontal, 
+                                    children: [
+                                      //loop for language
+                                      for (var lang in _youtubeData['lang'])
+                                        Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: ElevatedButton(
+                                            onPressed: () {
+                                              HapticFeedback.heavyImpact();
+                                              setState(() {
+                                                _lang = lang;
+                                              });
+                                              Navigator.pop(context);
+                                            },
+                                            style: ButtonStyle(
+                                              padding: MaterialStateProperty.all(
+                                                const EdgeInsets.symmetric(
+                                                    vertical: 12.5),
+                                              ),
+                                              shape: MaterialStateProperty.all(
+                                                RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(12),
+                                                ),
+                                              ),
+                                            ),
+                                            child: Text(lang.toUpperCase()),
+                                          ),
+                                        ),
+                                    ],
+                                  )
+                                ],
+                              ),
+                            ),
+                          );
+                        });
+                  },
+                );
+              },
+              style: ButtonStyle(
+                padding: MaterialStateProperty.all(
+                  const EdgeInsets.symmetric(vertical: 12.5),
+                ),
+                shape: MaterialStateProperty.all(
+                  RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ),
+              child: Text(_lang.toUpperCase()),
+            ),
+            const SizedBox(width: 10),
             Expanded(
               child: ElevatedButton(
                 key: summarizeButtonKey,
@@ -169,6 +264,7 @@ class _YotubeSummaryPageState extends State<YotubeSummaryPage> {
                         type: 'youtube-summary',
                         title: _youtubeData['title'],
                         youtubeUrl: _controller.text,
+                        lang: _lang,
                       ),
                     ),
                     (Route<dynamic> route) => route.isFirst,
@@ -194,10 +290,7 @@ class _YotubeSummaryPageState extends State<YotubeSummaryPage> {
                 HapticFeedback.heavyImpact();
                 setState(() {
                   _isGetYoutubeData = false;
-                  _youtubeData = {
-                    'title': '',
-                    'thumbnail': '',
-                  };
+                  _youtubeData = {'title': '', 'thumbnail': '', 'lang': ''};
                   _controller.clear();
                 });
               },

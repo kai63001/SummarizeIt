@@ -65,7 +65,7 @@ export class OpenAIService {
       messages: [
         {
           role: 'system',
-          content: `Create a concise summary of the provided text, focusing on its key points and main ideas. Include relevant details and examples to support these main ideas. Ensure the summary is clear and easy to understand, capturing all essential information without any unnecessary repetition. The length of the summary should be appropriate to the original text's complexity, offering a thorough overview without omitting crucial details and I want time that this summary save in a sec.`,
+          content: `To create a concise summary of the provided text that focuses on key points and main ideas, it's essential to extract and emphasize the most relevant details and examples that support the main ideas. The summary should be clear and understandable, ensuring that all essential information is captured without unnecessary repetition. The length should be proportionate to the complexity of the original text, offering a thorough overview without omitting crucial details. When handling Thai language input, the summary will be returned in the original Thai language to maintain consistency with the input. This summary process will be efficient, aiming to complete within a second`,
         },
         {
           role: 'user',
@@ -112,7 +112,7 @@ export class OpenAIService {
       messages: [
         {
           role: 'system',
-          content: `Create a concise summary of the provided text, focusing on its key points and main ideas. Include relevant details and examples to support these main ideas. Ensure the summary is clear and easy to understand, capturing all essential information without any unnecessary repetition. The length of the summary should be appropriate to the original text's complexity, offering a thorough overview without omitting crucial details and I want time that this summary save in a sec.`,
+          content: `To create a concise summary of the provided text that focuses on key points and main ideas, it's essential to extract and emphasize the most relevant details and examples that support the main ideas. The summary should be clear and understandable, ensuring that all essential information is captured without unnecessary repetition. The length should be proportionate to the complexity of the original text, offering a thorough overview without omitting crucial details. When handling Thai language input, the summary will be returned in the original Thai language to maintain consistency with the input. This summary process will be efficient, aiming to complete within a second`,
         },
         {
           role: 'user',
@@ -160,7 +160,7 @@ export class OpenAIService {
       messages: [
         {
           role: 'system',
-          content: `Create a concise summary of the provided text, focusing on its key points and main ideas. Include relevant details and examples to support these main ideas. Ensure the summary is clear and easy to understand, capturing all essential information without any unnecessary repetition. The length of the summary should be appropriate to the original text's complexity, offering a thorough overview without omitting crucial details and I want time that this summary save in a sec. and return me json like this {summary: 'summary'}`,
+          content: `To create a concise summary of the provided text that focuses on key points and main ideas, it's essential to extract and emphasize the most relevant details and examples that support the main ideas. The summary should be clear and understandable, ensuring that all essential information is captured without unnecessary repetition. The length should be proportionate to the complexity of the original text, offering a thorough overview without omitting crucial details. When handling Thai language input, the summary will be returned in the original Thai language to maintain consistency with the input. This summary process will be efficient, aiming to complete within a second, and the result will be returned in a JSON format like this: {summary: 'summary'}.`,
         },
         {
           role: 'user',

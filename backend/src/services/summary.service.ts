@@ -136,6 +136,31 @@ export class SummaryService {
   }
 
   /**
+   * Retrieves the language support for a given URL.
+   *
+   * @param url - The URL of the video for which to fetch the language support.
+   * @returns A promise that resolves to the language support.
+   * @throws If an error occurs while fetching the language support.
+   */
+  public async getLanguageSupport(url: string) {
+    return await YoutubeTranscript.fetchTranscript(url, {
+      lang: 'ttt',
+    }).catch((err: any) => {
+      const error = err.message.toString();
+      console.log(error);
+      if (error.includes('Transcript is disabled on this video')) return ['en'];
+      const langee = error
+        .substr(error.indexOf('ges:'))
+        .replaceAll('ges:', '')
+        .trim()
+        .split(', ')
+        .map((lang: string) => lang.trim());
+      const duplicateFilter = langee.filter((item, index) => langee.indexOf(item) === index);
+      return duplicateFilter;
+    });
+  }
+
+  /**
    * Fetches the transcript of a YouTube video, generates a summary of the transcript,
    * and returns the summary along with other relevant information.
    *
@@ -145,11 +170,14 @@ export class SummaryService {
    * @returns A Promise that resolves to an object containing the text, summary, time, and title of the video.
    * @throws An error if the video is longer than 35 minutes.
    */
-  public async youtubeSummary(url: string, title: string, deviceId: string): Promise<any> {
+  public async youtubeSummary(url: string, title: string, deviceId: string, lang: string): Promise<any> {
+    console.log('lang', lang);
     const subtitles = await YoutubeTranscript.fetchTranscript(url, {
-      lang: 'en',
-    }).catch(() => {
-      throw new Error('Error fetching transcript');
+      lang: lang || 'en',
+    }).catch((err: any) => {
+      console.error(err);
+      throw new Error(err.message);
+      // throw new Error('Error fetching transcript');
     });
     // sum all time of this video via offset and duration and return
     const sum = subtitles.reduce((acc, subtitle) => acc + subtitle.duration, 0);
@@ -208,10 +236,12 @@ export class SummaryService {
   public async getYoutubeData(url: string): Promise<any> {
     const response = await axios.get(`https://noembed.com/embed?url=${url}`);
     const data = response.data;
+    const lang = await this.getLanguageSupport(url);
 
     return {
       title: data.title,
       thumbnail: data.thumbnail_url,
+      lang,
     };
   }
 

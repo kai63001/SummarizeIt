@@ -31,14 +31,14 @@ export class SummaryController {
 
   public getYoutubeSummary = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { url, title, deviceId }: { url: string; title: string; deviceId: string } = req.body;
+      const { url, title, deviceId, lang = 'en' }: { url: string; title: string; deviceId: string; lang: string } = req.body;
       if (!url) {
         throw new Error('URL is required');
       }
       if (!deviceId) {
         throw new Error('Device ID is required');
       }
-      const summary: string = await this.summary.youtubeSummary(url, title, deviceId);
+      const summary: string = await this.summary.youtubeSummary(url, title, deviceId, lang);
 
       res.status(200).json({ data: summary, message: 'summary' });
     } catch (error) {
@@ -101,6 +101,17 @@ export class SummaryController {
       const summary = await this.summary.audioSummary(file.buffer, deviceId);
 
       res.status(200).json({ data: summary, message: 'summary' });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  public getLanguageSupport = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { url } = req.body;
+      const languages = await this.summary.getLanguageSupport(url);
+
+      res.status(200).json({ data: languages, message: 'summary' });
     } catch (error) {
       next(error);
     }

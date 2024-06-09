@@ -22,5 +22,6 @@ export class SummaryRoute implements Routes {
     this.router.get(`${this.path}/get-youtube-data`, this.summary.getYoutubeData);
     this.router.post(`${this.path}/audio-summary`, upload.single('audio'), this.summary.audioSummary);
     this.router.post(`${this.path}/shorter-longer`, this.summary.shorterOrLongerSummary);
+    this.router.post(`${this.path}/lang`, this.summary.getLanguageSupport);
   }
 }
