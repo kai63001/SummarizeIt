@@ -192,7 +192,8 @@ class _SummaryDoneState extends State<SummaryDone>
     List<Map<String, dynamic>> history = context.read<HistoryStore>().state;
     for (var i = 0; i < history.length; i++) {
       if (history[i]['type'] == 'youtube-summary' &&
-          history[i]['youtubeUrl'] == widget.youtubeUrl && history[i]['lang'] == widget.lang) {
+          history[i]['youtubeUrl'] == widget.youtubeUrl &&
+          history[i]['lang'] == widget.lang) {
         setState(() {
           _id = history[i]['id'];
           _summaryText = history[i]['summary'];
@@ -262,7 +263,12 @@ class _SummaryDoneState extends State<SummaryDone>
       response = await http.Response.fromStream(await request.send());
     } else {
       api = Uri.parse('$apiUrl/summary/youtube-summary');
-      body = {'url': widget.text, 'deviceId': deviceId, 'title': widget.title, 'lang': widget.lang};
+      body = {
+        'url': widget.text,
+        'deviceId': deviceId,
+        'title': widget.title,
+        'lang': widget.lang
+      };
       response = await http.post(
         api,
         body: body,
@@ -384,6 +390,9 @@ class _SummaryDoneState extends State<SummaryDone>
   }
 
   Future<void> _onFetchShorterOrLonger(String type) async {
+    if (await _checkProOrNot() == false) {
+      return;
+    }
     Navigator.pop(context);
     setState(() {
       _isSummary = false;
@@ -528,110 +537,110 @@ class _SummaryDoneState extends State<SummaryDone>
                                   ),
                                 ),
                                 if (_displayText != 'original')
-                                GestureDetector(
-                                  onTap: () {
-                                    setState(() {
-                                      _displayText = 'original';
-                                    });
-                                    Navigator.pop(context);
-                                  },
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 15.0, vertical: 5.0),
-                                    child: Container(
-                                        decoration: const BoxDecoration(
-                                          color:
-                                              Color.fromARGB(255, 43, 43, 54),
-                                          borderRadius: BorderRadius.all(
-                                              Radius.circular(10)),
-                                        ),
-                                        child: Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.start,
-                                            children: [
-                                              IconButton(
-                                                onPressed: () {},
-                                                icon: const Icon(
-                                                    Icons.text_fields_rounded),
-                                              ),
-                                              const Text(
-                                                'Original Summary',
-                                                style: TextStyle(
-                                                    color: Colors.white,
-                                                    fontWeight:
-                                                        FontWeight.bold),
-                                              )
-                                            ])),
+                                  GestureDetector(
+                                    onTap: () {
+                                      setState(() {
+                                        _displayText = 'original';
+                                      });
+                                      Navigator.pop(context);
+                                    },
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 15.0, vertical: 5.0),
+                                      child: Container(
+                                          decoration: const BoxDecoration(
+                                            color:
+                                                Color.fromARGB(255, 43, 43, 54),
+                                            borderRadius: BorderRadius.all(
+                                                Radius.circular(10)),
+                                          ),
+                                          child: Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.start,
+                                              children: [
+                                                IconButton(
+                                                  onPressed: () {},
+                                                  icon: const Icon(Icons
+                                                      .text_fields_rounded),
+                                                ),
+                                                const Text(
+                                                  'Original Summary',
+                                                  style: TextStyle(
+                                                      color: Colors.white,
+                                                      fontWeight:
+                                                          FontWeight.bold),
+                                                )
+                                              ])),
+                                    ),
                                   ),
-                                ),
                                 if (_displayText != 'shorter')
-                                GestureDetector(
-                                  onTap: () {
-                                    _onFetchShorterOrLonger('shorter');
-                                  },
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 15.0, vertical: 5.0),
-                                    child: Container(
-                                        decoration: const BoxDecoration(
-                                          color:
-                                              Color.fromARGB(255, 43, 43, 54),
-                                          borderRadius: BorderRadius.all(
-                                              Radius.circular(10)),
-                                        ),
-                                        child: Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.start,
-                                            children: [
-                                              IconButton(
-                                                onPressed: () {},
-                                                icon: const Icon(
-                                                    Icons.short_text_rounded),
-                                              ),
-                                              const Text(
-                                                'Make shorter',
-                                                style: TextStyle(
-                                                    color: Colors.white,
-                                                    fontWeight:
-                                                        FontWeight.bold),
-                                              )
-                                            ])),
+                                  GestureDetector(
+                                    onTap: () {
+                                      _onFetchShorterOrLonger('shorter');
+                                    },
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 15.0, vertical: 5.0),
+                                      child: Container(
+                                          decoration: const BoxDecoration(
+                                            color:
+                                                Color.fromARGB(255, 43, 43, 54),
+                                            borderRadius: BorderRadius.all(
+                                                Radius.circular(10)),
+                                          ),
+                                          child: Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.start,
+                                              children: [
+                                                IconButton(
+                                                  onPressed: () {},
+                                                  icon: const Icon(
+                                                      Icons.short_text_rounded),
+                                                ),
+                                                const Text(
+                                                  'Make shorter',
+                                                  style: TextStyle(
+                                                      color: Colors.white,
+                                                      fontWeight:
+                                                          FontWeight.bold),
+                                                )
+                                              ])),
+                                    ),
                                   ),
-                                ),
-                                if(_displayText != 'longer')
-                                GestureDetector(
-                                  onTap: () {
-                                    _onFetchShorterOrLonger('longer');
-                                  },
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 15.0, vertical: 5.0),
-                                    child: Container(
-                                        decoration: const BoxDecoration(
-                                          color:
-                                              Color.fromARGB(255, 43, 43, 54),
-                                          borderRadius: BorderRadius.all(
-                                              Radius.circular(10)),
-                                        ),
-                                        child: Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.start,
-                                            children: [
-                                              IconButton(
-                                                onPressed: () {},
-                                                icon: const Icon(
-                                                    Icons.line_style_rounded),
-                                              ),
-                                              const Text(
-                                                'Make longer',
-                                                style: TextStyle(
-                                                    color: Colors.white,
-                                                    fontWeight:
-                                                        FontWeight.bold),
-                                              )
-                                            ])),
+                                if (_displayText != 'longer')
+                                  GestureDetector(
+                                    onTap: () {
+                                      _onFetchShorterOrLonger('longer');
+                                    },
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 15.0, vertical: 5.0),
+                                      child: Container(
+                                          decoration: const BoxDecoration(
+                                            color:
+                                                Color.fromARGB(255, 43, 43, 54),
+                                            borderRadius: BorderRadius.all(
+                                                Radius.circular(10)),
+                                          ),
+                                          child: Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.start,
+                                              children: [
+                                                IconButton(
+                                                  onPressed: () {},
+                                                  icon: const Icon(
+                                                      Icons.line_style_rounded),
+                                                ),
+                                                const Text(
+                                                  'Make longer',
+                                                  style: TextStyle(
+                                                      color: Colors.white,
+                                                      fontWeight:
+                                                          FontWeight.bold),
+                                                )
+                                              ])),
+                                    ),
                                   ),
-                                ),
                               ],
                             ),
                           ),
@@ -682,17 +691,17 @@ class _SummaryDoneState extends State<SummaryDone>
               ),
               // display type
               if (_displayText != 'original')
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 5),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10),
-                  color: const Color(0xFFFFD789),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 5),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    color: const Color(0xFFFFD789),
+                  ),
+                  child: Text(
+                    _displayText.toUpperCase(),
+                    style: const TextStyle(fontSize: 12, color: Colors.black),
+                  ),
                 ),
-                child: Text(
-                  _displayText.toUpperCase(),
-                  style: const TextStyle(fontSize: 12, color: Colors.black),
-                ),
-              ),
             ],
           ),
           if (_youtubeUrl.isNotEmpty)
