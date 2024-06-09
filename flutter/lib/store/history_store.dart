@@ -17,6 +17,20 @@ class HistoryStore extends Cubit<List<Map<String, dynamic>>> {
     emit(newHistory.cast<Map<String, dynamic>>());
   }
 
+  Future<void> update(String id,String key,String data) async {
+    final prefs = await SharedPreferences.getInstance();
+    final history = state;
+    final newHistory = history.map((e) {
+      if (e['id'] == id) {
+        e[key] = data;
+      }
+      return e;
+    }).toList();
+    prefs.setStringList(
+        'history', newHistory.map((e) => jsonEncode(e)).toList());
+    emit(newHistory.cast<Map<String, dynamic>>());
+  }
+
   Future<void> _initHistory() async {
     final prefs = await SharedPreferences.getInstance();
     final rawHistory = prefs.getStringList('history') ?? [];

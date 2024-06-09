@@ -58,12 +58,19 @@ class _SummaryDoneState extends State<SummaryDone>
   String _titleText = '';
   String _date = '';
   String _youtubeUrl = '';
+  String _displayText = 'original';
+  String _shorter = '';
+  String _longer = '';
+  String _id = '';
   late TabController _tabController;
   final ThemeData theme = ThemeData();
   //init
   @override
   void initState() {
     super.initState();
+    setState(() {
+      _id = DateTime.now().toString();
+    });
     _tabController = TabController(length: 2, vsync: this);
     if (widget.tutorial) {
       _onTutorial();
@@ -122,12 +129,15 @@ class _SummaryDoneState extends State<SummaryDone>
     context.read<HistoryStore>().state.forEach((element) {
       if (element['id'] == widget.historyId) {
         setState(() {
+          _id = element['id'];
           _summaryText = element['summary'];
           _originalText = element['original'];
           _titleText = element['title'];
           _transcriptText = element['transcript'];
           _date = formatDate.format(DateTime.parse(element['date']));
           _youtubeUrl = element['youtubeUrl'];
+          _shorter = element['shorter'] ?? '';
+          _longer = element['longer'] ?? '';
           _isSummary = true;
         });
       }
@@ -140,11 +150,16 @@ class _SummaryDoneState extends State<SummaryDone>
       if (history[i]['type'] == 'audio-summary' &&
           history[i]['audioId'] == widget.audioId) {
         setState(() {
+          _id = history[i]['id'];
           _summaryText = history[i]['summary'];
           _originalText = history[i]['original'];
           _titleText = history[i]['title'];
           _transcriptText = history[i]['transcript'];
           _date = formatDate.format(DateTime.parse(history[i]['date']));
+          _shorter = history[i]['shorter'] ?? '';
+          ;
+          _longer = history[i]['longer'] ?? '';
+          ;
           _isSummary = true;
         });
         return true;
@@ -179,12 +194,15 @@ class _SummaryDoneState extends State<SummaryDone>
       if (history[i]['type'] == 'youtube-summary' &&
           history[i]['youtubeUrl'] == widget.youtubeUrl) {
         setState(() {
+          _id = history[i]['id'];
           _summaryText = history[i]['summary'];
           _originalText = history[i]['original'];
           _titleText = history[i]['title'];
           _transcriptText = history[i]['transcript'];
           _date = formatDate.format(DateTime.parse(history[i]['date']));
           _youtubeUrl = history[i]['youtubeUrl'];
+          _shorter = history[i]['shorter'] ?? '';
+          _longer = history[i]['longer'] ?? '';
           _isSummary = true;
         });
         return true;
@@ -365,9 +383,79 @@ class _SummaryDoneState extends State<SummaryDone>
     }
   }
 
+  Future<void> _onFetchShorterOrLonger(String type) async {
+    Navigator.pop(context);
+    setState(() {
+      _isSummary = false;
+    });
+    if (type == 'shorter' && _shorter.isNotEmpty) {
+      setState(() {
+        _isSummary = true;
+        _displayText = 'shorter';
+      });
+      return;
+    } else if (type == 'longer' && _longer.isNotEmpty) {
+      setState(() {
+        _isSummary = true;
+        _displayText = 'longer';
+      });
+      return;
+    }
+    Uri api;
+    Map<String, String> body;
+    http.Response response;
+    api = Uri.parse('$apiUrl/summary/shorter-longer');
+    body = {
+      'original': _originalText,
+      'text': _summaryText,
+      'type': type,
+      'deviceId': context.read<DeviceIdStore>().state
+    };
+    response = await http.post(
+      api,
+      body: body,
+    );
+    if (response.statusCode == 200) {
+      var responseBody = jsonDecode(response.body); // Add this line
+      if (type == 'shorter') {
+        setState(() {
+          _shorter = responseBody['data']['summary'];
+          _displayText = 'shorter';
+        });
+        updateHistoryWithId(_id, 'shorter', _shorter);
+      } else {
+        setState(() {
+          _longer = responseBody['data']['summary'];
+          _displayText = 'longer';
+        });
+        updateHistoryWithId(_id, 'longer', _longer);
+      }
+      setState(() {
+        _isSummary = true;
+      });
+    } else {
+      var responseBody = jsonDecode(response.body); // Add this line
+      String message = responseBody['message'] ?? 'Failed to load summary';
+      //back to pop
+      // ignore: use_build_context_synchronously
+      Navigator.pop(context);
+      QuickAlert.show(
+        // ignore: use_build_context_synchronously
+        context: context,
+        type: QuickAlertType.error,
+        title: 'Summary Failed',
+        text: '🚨 $message',
+      );
+    }
+  }
+
+  void updateHistoryWithId(String id, String key, String data) {
+    context.read<HistoryStore>().update(id, key, data);
+  }
+
   void saveToHistory() async {
     context.read<HistoryStore>().add(jsonEncode({
-          'id': DateTime.now().toString(),
+          'id': _id,
           'title': _titleText,
           'summary': _summaryText,
           'original': _originalText,
@@ -385,6 +473,16 @@ class _SummaryDoneState extends State<SummaryDone>
       await launch(url);
     } else {
       throw 'Could not launch $url';
+    }
+  }
+
+  String _displayTextConditon() {
+    if (_displayText == 'original') {
+      return _summaryText;
+    } else if (_displayText == 'shorter') {
+      return _shorter;
+    } else {
+      return _longer;
     }
   }
 
@@ -428,8 +526,48 @@ class _SummaryDoneState extends State<SummaryDone>
                                     borderRadius: BorderRadius.circular(10),
                                   ),
                                 ),
+                                if (_displayText != 'original')
                                 GestureDetector(
-                                  onTap: () {},
+                                  onTap: () {
+                                    setState(() {
+                                      _displayText = 'original';
+                                    });
+                                    Navigator.pop(context);
+                                  },
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 15.0, vertical: 5.0),
+                                    child: Container(
+                                        decoration: const BoxDecoration(
+                                          color:
+                                              Color.fromARGB(255, 43, 43, 54),
+                                          borderRadius: BorderRadius.all(
+                                              Radius.circular(10)),
+                                        ),
+                                        child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.start,
+                                            children: [
+                                              IconButton(
+                                                onPressed: () {},
+                                                icon: const Icon(
+                                                    Icons.text_fields_rounded),
+                                              ),
+                                              const Text(
+                                                'Original Summary',
+                                                style: TextStyle(
+                                                    color: Colors.white,
+                                                    fontWeight:
+                                                        FontWeight.bold),
+                                              )
+                                            ])),
+                                  ),
+                                ),
+                                if (_displayText != 'shorter')
+                                GestureDetector(
+                                  onTap: () {
+                                    _onFetchShorterOrLonger('shorter');
+                                  },
                                   child: Padding(
                                     padding: const EdgeInsets.symmetric(
                                         horizontal: 15.0, vertical: 5.0),
@@ -459,8 +597,11 @@ class _SummaryDoneState extends State<SummaryDone>
                                             ])),
                                   ),
                                 ),
+                                if(_displayText != 'longer')
                                 GestureDetector(
-                                  onTap: () {},
+                                  onTap: () {
+                                    _onFetchShorterOrLonger('longer');
+                                  },
                                   child: Padding(
                                     padding: const EdgeInsets.symmetric(
                                         horizontal: 15.0, vertical: 5.0),
@@ -535,6 +676,22 @@ class _SummaryDoneState extends State<SummaryDone>
                   style: const TextStyle(fontSize: 12, color: Colors.grey),
                 ),
               ),
+              const SizedBox(
+                width: 10,
+              ),
+              // display type
+              if (_displayText != 'original')
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 5),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10),
+                  color: const Color(0xFFFFD789),
+                ),
+                child: Text(
+                  _displayText.toUpperCase(),
+                  style: const TextStyle(fontSize: 12, color: Colors.black),
+                ),
+              ),
             ],
           ),
           if (_youtubeUrl.isNotEmpty)
@@ -605,7 +762,8 @@ class _SummaryDoneState extends State<SummaryDone>
                   child: ListView(
                     children: [
                       TextField(
-                        controller: TextEditingController(text: _summaryText),
+                        controller:
+                            TextEditingController(text: _displayTextConditon()),
                         maxLines: null,
                         readOnly: true,
                         decoration: const InputDecoration(

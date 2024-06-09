@@ -94,7 +94,7 @@ export class SummaryService {
    * @returns A Promise that resolves to an object containing the full text, summarize text, and the generated summary.
    * @throws Error if the text input is too long or invalid.
    */
-  public async makeItShorterOrLonger(fullText: string, summarizeText: string, status: 'shorter' | 'longer'): Promise<any> {
+  public async makeItShorterOrLonger(fullText: string, summarizeText: string, status: 'shorter' | 'longer', deviceId: string): Promise<any> {
     const tokens = await this.countTokens(fullText);
     logger.info(`Token input: ${tokens}`);
     // limit characters to 200000
@@ -111,6 +111,13 @@ export class SummaryService {
       summary = await this.openai.makeItLonger(fullText, summarizeText);
     }
     logger.info('Summary generated successfully.');
+
+    try {
+      // save to db
+      await SummaryModel.create({ deviceId, textLength: summary.length });
+    } catch (error) {
+      console.error(error);
+    }
 
     return {
       fullText,

@@ -105,4 +105,27 @@ export class SummaryController {
       next(error);
     }
   };
+
+  public shorterOrLongerSummary = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { original, text, type, deviceId }: { original: string; text: string; type: 'shorter' | 'longer'; deviceId: string } = req.body;
+      if (!type) {
+        throw new Error('Type is required');
+      }
+      if (!original) {
+        throw new Error('Original text is required');
+      }
+      if (!text) {
+        throw new Error('Text is required');
+      }
+      if (!deviceId) {
+        throw new Error('Device ID is required');
+      }
+      const summary: string = await this.summary.makeItShorterOrLonger(original, text, type, deviceId);
+
+      res.status(200).json({ data: summary, message: 'summary' });
+    } catch (error) {
+      next(error);
+    }
+  };
 }
