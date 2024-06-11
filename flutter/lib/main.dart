@@ -12,6 +12,7 @@ import 'package:sumarizeit/page/history/history_page.dart';
 import 'package:sumarizeit/page/record_audio/record_audio_page.dart';
 import 'package:sumarizeit/page/summary_done.dart';
 import 'package:sumarizeit/page/text_summary/text_summary_page.dart';
+import 'package:sumarizeit/page/web_summary/web_summary_page.dart';
 import 'package:sumarizeit/page/youtube_summary/youtube_summary_page.dart';
 import 'package:sumarizeit/store/deviceId_store.dart';
 import 'package:sumarizeit/store/history_store.dart';
@@ -405,33 +406,13 @@ class _MyHomePageState extends State<MyHomePage> {
                     GestureDetector(
                       onTap: () {
                         HapticFeedback.heavyImpact();
-                        // Navigator.push(
-                        //   context,
-                        //   MaterialPageRoute(
-                        //       builder: (context) => const RecordAudioPage()),
-                        // );
-                        //Alert on implementation
-                        showDialog(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return AlertDialog(
-                              title: const Text('Coming Soon!'),
-                              content: const Text(
-                                  'This feature is under development. Stay tuned!'),
-                              actions: <Widget>[
-                                TextButton(
-                                  onPressed: () {
-                                    Navigator.of(context).pop();
-                                  },
-                                  child: const Text('OK'),
-                                ),
-                              ],
-                            );
-                          },
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const WebPageSummaryPage()),
                         );
                       },
                       child: Card(
-                        color: const Color.fromARGB(255, 18, 18, 18),
                         child: Padding(
                           padding: const EdgeInsets.all(16),
                           child: Column(
@@ -459,7 +440,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                       fontSize: 18,
                                       fontWeight: FontWeight.bold)),
                               Text(
-                                'Summarize your web page \n(Coming Soon!)',
+                                'Summarize your web page content Blog, Article, etc.',
                                 style: TextStyle(
                                     //color secondary
                                     color: theme.colorScheme.secondary),
