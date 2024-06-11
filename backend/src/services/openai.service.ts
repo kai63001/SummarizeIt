@@ -1,8 +1,9 @@
 import { Service } from 'typedi';
 import OpenAI, { toFile } from 'openai';
-import { OPENAI_API_KEY } from '@/config';
+import { OPENAI_API_KEY, TOKEN_RESIZE_API } from '@/config';
 import { jsonrepair } from 'jsonrepair';
 import { logger } from '@/utils/logger';
+import axios from 'axios';
 
 @Service()
 export class OpenAIService {
@@ -35,6 +36,18 @@ export class OpenAIService {
     return chunks;
   }
 
+  public async resizeTokenUsage(text: string) {
+    try {
+      const result = await axios.post(`${TOKEN_RESIZE_API}/gpt`, {
+        data: text,
+      });
+      return result.data;
+    } catch (error) {
+      logger.error(error);
+      return text;
+    }
+  }
+
   public async generateSummary(text: string): Promise<string> {
     const inputChunks = this.splitText(text);
     const outputChunks: string[] = [];
@@ -62,50 +75,56 @@ export class OpenAIService {
   }
 
   public async textSummary(text: string): Promise<string> {
-    return this.generateSummary(text);
-    // try {
-    //   if (typeof text !== 'string' || text.trim() === '') {
-    //     throw new Error('Invalid text input');
-    //   }
-    //   const completion = await this.openai.chat.completions.create({
-    //     messages: [
-    //       {
-    //         role: 'system',
-    //         content: `Create a concise summary of the provided text, focusing on its key points and main ideas. Include relevant details and examples to support these main ideas. Ensure the summary is clear and easy to understand, capturing all essential information without any unnecessary repetition. The length of the summary should be appropriate to the original text's complexity, offering a thorough overview without omitting crucial details and I want time that this summary save in a sec. and return me json like this {summary: 'summary',title: 'title', time: 5} time is in mins. time base on your text complexity. that mean if your text is complex then time is more and if your text is simple then time is less.`,
-    //       },
-    //       {
-    //         role: 'user',
-    //         content:
-    //           'What is a large language model (LLM)? A large language model (LLM) is a type of artificial intelligence (AI) program that can recognize and generate text, among other tasks. LLMs are trained on huge sets of data',
-    //       },
-    //       {
-    //         role: 'assistant',
-    //         content: JSON.stringify({
-    //           title: 'Large Language Model',
-    //           summary:
-    //             'A large language model (LLM) is a type of artificial intelligence (AI) program that can recognize and generate text, among other tasks. LLMs are trained on huge sets of data',
-    //           time: 5,
-    //         }),
-    //       },
-    //       {
-    //         role: 'user',
-    //         content: text,
-    //       },
-    //     ],
-    //     model: 'gpt-3.5-turbo',
-    //   });
+    const data = await this.resizeTokenUsage(text);
+    const message = data['compressed_prompt_list'].join(' ');
+    const compressed_tokens = data['compressed_tokens'];
+    const origin_tokens = data['origin_tokens'];
+    logger.info(`Compressed tokens: ${compressed_tokens}, Origin tokens: ${origin_tokens}`);
+    // return this.generateSummary(text);
+    try {
+      if (typeof text !== 'string' || text.trim() === '') {
+        throw new Error('Invalid text input');
+      }
+      const completion = await this.openai.chat.completions.create({
+        messages: [
+          {
+            role: 'system',
+            content: `Create a concise summary of the provided text, focusing on its key points and main ideas. Include relevant details and examples to support these main ideas. Ensure the summary is clear and easy to understand, capturing all essential information without any unnecessary repetition. The length of the summary should be appropriate to the original text's complexity, offering a thorough overview without omitting crucial details and I want time that this summary save in a sec. and return me json like this {summary: 'summary',title: 'title', time: 5} time is in mins. time base on your text complexity. that mean if your text is complex then time is more and if your text is simple then time is less.`,
+          },
+          {
+            role: 'user',
+            content:
+              'What is a large language model (LLM)? A large language model (LLM) is a type of artificial intelligence (AI) program that can recognize and generate text, among other tasks. LLMs are trained on huge sets of data',
+          },
+          {
+            role: 'assistant',
+            content: JSON.stringify({
+              title: 'Large Language Model',
+              summary:
+                'A large language model (LLM) is a type of artificial intelligence (AI) program that can recognize and generate text, among other tasks. LLMs are trained on huge sets of data',
+              time: 5,
+            }),
+          },
+          {
+            role: 'user',
+            content: message,
+          },
+        ],
+        model: 'gpt-3.5-turbo',
+      });
 
-    //   const summary = completion.choices[0].message.content;
-    //   const output = JSON.parse(jsonrepair(summary));
-    //   logger.info(`Token usage: ${completion.usage.total_tokens}`);
-    //   if (output.title === undefined || output.title === '' || output.title == 'Error') {
-    //     throw new Error('Error in text summary');
-    //   }
-    //   return output;
-    // } catch (error) {
-    //   logger.error(error);
-    //   throw Error('Error in text summary');
-    // }
+      const summary = completion.choices[0].message.content;
+      const output = JSON.parse(jsonrepair(summary));
+      logger.info(`Token usage: ${completion.usage.total_tokens}`);
+      if (output.title === undefined || output.title === '' || output.title == 'Error') {
+        logger.error('Error in text summary', output);
+        throw new Error('Error in text summary');
+      }
+      return output;
+    } catch (error) {
+      logger.error('error', error);
+      throw Error('Error in text summary');
+    }
   }
 
   public async makeItShortter(fullText: string, summary: string): Promise<string> {
@@ -113,37 +132,11 @@ export class OpenAIService {
       messages: [
         {
           role: 'system',
-          content: `To create a concise summary of the provided text that focuses on key points and main ideas, it's essential to extract and emphasize the most relevant details and examples that support the main ideas. The summary should be clear and understandable, ensuring that all essential information is captured without unnecessary repetition. The length should be proportionate to the complexity of the original text, offering a thorough overview without omitting crucial details. When handling ... language input, the summary will be returned in the original ... language to maintain consistency with the input. This summary process will be efficient, aiming to complete within a second`,
+          content: `Create a concise summary of the provided text, highlighting key points and main ideas. Include relevant details and examples for support. Ensure the summary is clear, capturing all essential information without repetition. The length should be appropriate to the text's complexity, providing a thorough overview without omitting crucial details. make it shorter`,
         },
         {
           role: 'user',
-          content:
-            'What is a large language model (LLM)? A large language model (LLM) is a type of artificial intelligence (AI) program that can recognize and generate text, among other tasks. LLMs are trained on huge sets of data',
-        },
-        {
-          role: 'assistant',
-          content:
-            'A large language model (LLM) is a type of artificial intelligence (AI) program that can recognize and generate text, among other tasks. LLMs are trained on huge sets of data',
-        },
-        {
-          role: 'user',
-          content: 'make it shorter return only text',
-        },
-        {
-          role: 'assistant',
-          content: 'A large language model (LLM) is an AI program trained on vast data sets to recognize and generate text.',
-        },
-        {
-          role: 'user',
-          content: fullText,
-        },
-        {
-          role: 'assistant',
           content: summary,
-        },
-        {
-          role: 'user',
-          content: 'make it shorter return only text',
         },
       ],
       model: 'gpt-3.5-turbo',
@@ -160,38 +153,11 @@ export class OpenAIService {
       messages: [
         {
           role: 'system',
-          content: `To create a concise summary of the provided text that focuses on key points and main ideas, it's essential to extract and emphasize the most relevant details and examples that support the main ideas. The summary should be clear and understandable, ensuring that all essential information is captured without unnecessary repetition. The length should be proportionate to the complexity of the original text, offering a thorough overview without omitting crucial details. When handling ... language input, the summary will be returned in the original ... language to maintain consistency with the input. This summary process will be efficient, aiming to complete within a second`,
+          content: `Write a detailed summary of the provided text, emphasizing key points and main ideas. Include relevant details and examples to support these ideas. Ensure the summary is clear and comprehensive, capturing all essential information. The length should be sufficient to cover the text's complexity, offering a thorough overview without leaving out any crucial details.`,
         },
         {
           role: 'user',
-          content:
-            'What is a large language model (LLM)? A large language model (LLM) is a type of artificial intelligence (AI) program that can recognize and generate text, among other tasks. LLMs are trained on huge sets of data',
-        },
-        {
-          role: 'assistant',
-          content:
-            'A large language model (LLM) is a type of artificial intelligence (AI) program that can recognize and generate text, among other tasks. LLMs are trained on huge sets of data',
-        },
-        {
-          role: 'user',
-          content: 'make it longer',
-        },
-        {
-          role: 'assistant',
-          content:
-            'A large language model (LLM) is a sophisticated artificial intelligence (AI) program designed to understand and produce human language. These models are capable of recognizing and generating text, performing various language-related tasks, and responding to different contexts',
-        },
-        {
-          role: 'user',
-          content: fullText,
-        },
-        {
-          role: 'assistant',
           content: summary,
-        },
-        {
-          role: 'user',
-          content: 'make it longer',
         },
       ],
       model: 'gpt-3.5-turbo',
@@ -204,6 +170,12 @@ export class OpenAIService {
   }
 
   public async youtubeSummary(text: string): Promise<any> {
+    const data = await this.resizeTokenUsage(text);
+    const message = data['compressed_prompt_list'].join(' ');
+    const compressed_tokens = data['compressed_tokens'];
+    const origin_tokens = data['origin_tokens'];
+    logger.info(`Compressed tokens: ${compressed_tokens}, Origin tokens: ${origin_tokens}`);
+
     const completion = await this.openai.chat.completions.create({
       messages: [
         {
@@ -224,7 +196,7 @@ export class OpenAIService {
         },
         {
           role: 'user',
-          content: text,
+          content: message,
         },
       ],
       model: 'gpt-3.5-turbo',

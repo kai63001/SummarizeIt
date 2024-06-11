@@ -61,6 +61,7 @@ class _SummaryDoneState extends State<SummaryDone>
   String _date = '';
   String _youtubeUrl = '';
   String _displayText = 'original';
+  String _originalType = 'original';
   String _shorter = '';
   String _longer = '';
   String _id = '';
@@ -324,6 +325,11 @@ class _SummaryDoneState extends State<SummaryDone>
         });
         double time = (responseBody['data']['time'] as num).toDouble();
         alertSaveTime(time);
+        if (_transcriptText.isNotEmpty) {
+          setState(() {
+            _originalType = 'transcript';
+          });
+        }
       }
       saveToHistory();
     } else {
@@ -491,6 +497,8 @@ class _SummaryDoneState extends State<SummaryDone>
       return _summaryText;
     } else if (_displayText == 'shorter') {
       return _shorter;
+    } else if (_displayText == 'transcript') {
+      return _transcriptText;
     } else {
       return _longer;
     }
@@ -503,154 +511,230 @@ class _SummaryDoneState extends State<SummaryDone>
         title: const Text('Summary'),
         // bottom modal setting
         actions: [
-          IconButton(
-            onPressed: () {
-              showModalBottomSheet(
-                context: context,
-                isScrollControlled: true,
-                backgroundColor: Colors.transparent,
-                builder: (context) {
-                  return DraggableScrollableSheet(
-                      initialChildSize: 0.3, // Initial height of the Sheet
-                      minChildSize: 0.1, // Minimum height of the Sheet
-                      maxChildSize: 1, // Maximum height of the Sheet
-                      builder: (BuildContext context,
-                          ScrollController scrollController) {
-                        return ClipRRect(
-                          borderRadius: const BorderRadius.only(
-                            topLeft: Radius.circular(20),
-                            topRight: Radius.circular(20),
-                          ),
-                          child: Container(
-                            color: const Color(0xFF14141A),
-                            child: Column(
-                              children: [
-                                // Custom drag handle
-                                Container(
-                                  margin: const EdgeInsets.all(10),
-                                  height: 5,
-                                  width: 30,
-                                  decoration: BoxDecoration(
-                                    color: Colors.grey[
-                                        300], // Change this to your desired color
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                ),
-                                if (_displayText != 'original')
-                                  GestureDetector(
-                                    onTap: () {
-                                      setState(() {
-                                        _displayText = 'original';
-                                      });
-                                      Navigator.pop(context);
-                                    },
-                                    child: Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 15.0, vertical: 5.0),
-                                      child: Container(
-                                          decoration: const BoxDecoration(
-                                            color:
-                                                Color.fromARGB(255, 43, 43, 54),
-                                            borderRadius: BorderRadius.all(
-                                                Radius.circular(10)),
-                                          ),
-                                          child: Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.start,
-                                              children: [
-                                                IconButton(
-                                                  onPressed: () {},
-                                                  icon: const Icon(Icons
-                                                      .text_fields_rounded),
-                                                ),
-                                                const Text(
-                                                  'Original Summary',
-                                                  style: TextStyle(
-                                                      color: Colors.white,
-                                                      fontWeight:
-                                                          FontWeight.bold),
-                                                )
-                                              ])),
-                                    ),
-                                  ),
-                                if (_displayText != 'shorter')
-                                  GestureDetector(
-                                    onTap: () {
-                                      _onFetchShorterOrLonger('shorter');
-                                    },
-                                    child: Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 15.0, vertical: 5.0),
-                                      child: Container(
-                                          decoration: const BoxDecoration(
-                                            color:
-                                                Color.fromARGB(255, 43, 43, 54),
-                                            borderRadius: BorderRadius.all(
-                                                Radius.circular(10)),
-                                          ),
-                                          child: Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.start,
-                                              children: [
-                                                IconButton(
-                                                  onPressed: () {},
-                                                  icon: const Icon(
-                                                      Icons.short_text_rounded),
-                                                ),
-                                                const Text(
-                                                  'Make shorter',
-                                                  style: TextStyle(
-                                                      color: Colors.white,
-                                                      fontWeight:
-                                                          FontWeight.bold),
-                                                )
-                                              ])),
-                                    ),
-                                  ),
-                                if (_displayText != 'longer')
-                                  GestureDetector(
-                                    onTap: () {
-                                      _onFetchShorterOrLonger('longer');
-                                    },
-                                    child: Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 15.0, vertical: 5.0),
-                                      child: Container(
-                                          decoration: const BoxDecoration(
-                                            color:
-                                                Color.fromARGB(255, 43, 43, 54),
-                                            borderRadius: BorderRadius.all(
-                                                Radius.circular(10)),
-                                          ),
-                                          child: Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.start,
-                                              children: [
-                                                IconButton(
-                                                  onPressed: () {},
-                                                  icon: const Icon(
-                                                      Icons.line_style_rounded),
-                                                ),
-                                                const Text(
-                                                  'Make longer',
-                                                  style: TextStyle(
-                                                      color: Colors.white,
-                                                      fontWeight:
-                                                          FontWeight.bold),
-                                                )
-                                              ])),
-                                    ),
-                                  ),
-                              ],
+          if (_isSummary)
+            IconButton(
+              onPressed: () {
+                showModalBottomSheet(
+                  context: context,
+                  isScrollControlled: true,
+                  backgroundColor: Colors.transparent,
+                  builder: (context) {
+                    return DraggableScrollableSheet(
+                        initialChildSize: 0.4, // Initial height of the Sheet
+                        minChildSize: 0.1, // Minimum height of the Sheet
+                        maxChildSize: 1, // Maximum height of the Sheet
+                        builder: (BuildContext context,
+                            ScrollController scrollController) {
+                          return ClipRRect(
+                            borderRadius: const BorderRadius.only(
+                              topLeft: Radius.circular(20),
+                              topRight: Radius.circular(20),
                             ),
-                          ),
-                        );
-                      });
-                },
-              );
-            },
-            icon: const Icon(Icons.list_outlined),
-          ),
+                            child: Container(
+                              color: const Color(0xFF14141A),
+                              child: Column(
+                                children: [
+                                  // Custom drag handle
+                                  Container(
+                                    margin: const EdgeInsets.all(10),
+                                    height: 5,
+                                    width: 30,
+                                    decoration: BoxDecoration(
+                                      color: Colors.grey[
+                                          300], // Change this to your desired color
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                  ),
+                                  if (_displayText != 'original')
+                                    GestureDetector(
+                                      onTap: () {
+                                        setState(() {
+                                          _displayText = 'original';
+                                        });
+                                        Navigator.pop(context);
+                                      },
+                                      child: Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 15.0, vertical: 5.0),
+                                        child: Container(
+                                            decoration: const BoxDecoration(
+                                              color: Color.fromARGB(
+                                                  255, 43, 43, 54),
+                                              borderRadius: BorderRadius.all(
+                                                  Radius.circular(10)),
+                                            ),
+                                            child: Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.start,
+                                                children: [
+                                                  IconButton(
+                                                    onPressed: () {},
+                                                    icon: const Icon(Icons
+                                                        .text_fields_rounded),
+                                                  ),
+                                                  const Text(
+                                                    'Original Summary',
+                                                    style: TextStyle(
+                                                        color: Colors.white,
+                                                        fontWeight:
+                                                            FontWeight.bold),
+                                                  )
+                                                ])),
+                                      ),
+                                    ),
+                                  if (_displayText != 'shorter')
+                                    GestureDetector(
+                                      onTap: () {
+                                        _onFetchShorterOrLonger('shorter');
+                                      },
+                                      child: Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 15.0, vertical: 5.0),
+                                        child: Container(
+                                            decoration: const BoxDecoration(
+                                              color: Color.fromARGB(
+                                                  255, 43, 43, 54),
+                                              borderRadius: BorderRadius.all(
+                                                  Radius.circular(10)),
+                                            ),
+                                            child: Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.start,
+                                                children: [
+                                                  IconButton(
+                                                    onPressed: () {},
+                                                    icon: const Icon(Icons
+                                                        .short_text_rounded),
+                                                  ),
+                                                  const Text(
+                                                    'Make shorter',
+                                                    style: TextStyle(
+                                                        color: Colors.white,
+                                                        fontWeight:
+                                                            FontWeight.bold),
+                                                  )
+                                                ])),
+                                      ),
+                                    ),
+                                  if (_displayText != 'longer')
+                                    GestureDetector(
+                                      onTap: () {
+                                        _onFetchShorterOrLonger('longer');
+                                      },
+                                      child: Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 15.0, vertical: 5.0),
+                                        child: Container(
+                                            decoration: const BoxDecoration(
+                                              color: Color.fromARGB(
+                                                  255, 43, 43, 54),
+                                              borderRadius: BorderRadius.all(
+                                                  Radius.circular(10)),
+                                            ),
+                                            child: Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.start,
+                                                children: [
+                                                  IconButton(
+                                                    onPressed: () {},
+                                                    icon: const Icon(Icons
+                                                        .line_style_rounded),
+                                                  ),
+                                                  const Text(
+                                                    'Make longer',
+                                                    style: TextStyle(
+                                                        color: Colors.white,
+                                                        fontWeight:
+                                                            FontWeight.bold),
+                                                  )
+                                                ])),
+                                      ),
+                                    ),
+                                  if (_originalType != 'transcript' &&
+                                      _transcriptText.isNotEmpty)
+                                    GestureDetector(
+                                      onTap: () {
+                                        setState(() {
+                                          _originalType = 'transcript';
+                                        });
+                                         Navigator.pop(context);
+                                      },
+                                      child: Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 15.0, vertical: 5.0),
+                                        child: Container(
+                                            decoration: const BoxDecoration(
+                                              color: Color.fromARGB(
+                                                  255, 43, 43, 54),
+                                              borderRadius: BorderRadius.all(
+                                                  Radius.circular(10)),
+                                            ),
+                                            child: Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.start,
+                                                children: [
+                                                  IconButton(
+                                                    onPressed: () {},
+                                                    icon: const Icon(
+                                                        Icons.transcribe),
+                                                  ),
+                                                  const Text(
+                                                    'Show Transcript',
+                                                    style: TextStyle(
+                                                        color: Colors.white,
+                                                        fontWeight:
+                                                            FontWeight.bold),
+                                                  )
+                                                ])),
+                                      ),
+                                    ),
+                                    if (_originalType == 'transcript')
+                                    GestureDetector(
+                                      onTap: () {
+                                        setState(() {
+                                          _originalType = 'original';
+                                        });
+                                         Navigator.pop(context);
+                                      },
+                                      child: Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 15.0, vertical: 5.0),
+                                        child: Container(
+                                            decoration: const BoxDecoration(
+                                              color: Color.fromARGB(
+                                                  255, 43, 43, 54),
+                                              borderRadius: BorderRadius.all(
+                                                  Radius.circular(10)),
+                                            ),
+                                            child: Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.start,
+                                                children: [
+                                                  IconButton(
+                                                    onPressed: () {},
+                                                    icon: const Icon(
+                                                        Icons.text_fields),
+                                                  ),
+                                                  const Text(
+                                                    'Show Text',
+                                                    style: TextStyle(
+                                                        color: Colors.white,
+                                                        fontWeight:
+                                                            FontWeight.bold),
+                                                  )
+                                                ])),
+                                      ),
+                                    ),
+                                ],
+                              ),
+                            ),
+                          );
+                        });
+                  },
+                );
+              },
+              icon: const Icon(Icons.list_outlined),
+            ),
         ],
       ),
       body: !_isSummary ? _loading() : _summary(),
@@ -810,7 +894,7 @@ class _SummaryDoneState extends State<SummaryDone>
                           // Text(widget.text),
                           TextField(
                             controller:
-                                TextEditingController(text: _originalText),
+                                TextEditingController(text: _originalType == 'transcript' ? _transcriptText : _originalText),
                             maxLines: null,
                             readOnly: true,
                             decoration: const InputDecoration(

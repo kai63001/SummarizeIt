@@ -6,7 +6,7 @@ llm_lingua = PromptCompressor(
     device_map="cpu",
     use_llmlingua2=True
 )
-app = Flask('openai-quickstart-python')
+app = Flask(__name__)
 
 @app.route("/")
 def index():
@@ -53,5 +53,5 @@ def gpt():
         return "Invalid request method"
 
 if __name__ == "__main__":
-    app.run(port=8000, debug=True)
+    app.run(port=3000)
 

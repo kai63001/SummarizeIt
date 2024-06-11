@@ -113,7 +113,6 @@ class _MyHomePageState extends State<MyHomePage> {
     getPurchaseStatus();
     _tutorail();
     _openPurchaseFirstTime();
-
   }
 
   Future<void> initPlugin() async {
@@ -130,7 +129,6 @@ class _MyHomePageState extends State<MyHomePage> {
     final uuid = await AppTrackingTransparency.getAdvertisingIdentifier();
     debugPrint("UUID: $uuid");
   }
-
 
   void initItems() {
     items.addAll({
@@ -435,10 +433,26 @@ class _MyHomePageState extends State<MyHomePage> {
                                 ),
                               ),
                               // Text
-                              const Text('Web Page',
-                                  style: TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold)),
+                              Row(
+                                children: [
+                                  const Text('Web Page',
+                                      style: TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold)),
+                                  Container(
+                                    margin: const EdgeInsets.only(left: 5),
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 5, vertical: 2),
+                                    decoration: BoxDecoration(
+                                        color: Colors.red,
+                                        borderRadius: BorderRadius.circular(5)),
+                                    child: const Text(
+                                      'Beta',
+                                      style: TextStyle(color: Colors.white),
+                                    ),
+                                  )
+                                ],
+                              ),
                               Text(
                                 'Summarize your web page content Blog, Article, etc.',
                                 style: TextStyle(

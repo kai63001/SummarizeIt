@@ -1,7 +1,7 @@
-import 'dart:convert';
-
 import 'package:chaleno/chaleno.dart';
 import 'package:flutter/material.dart';
+import 'package:quickalert/models/quickalert_type.dart';
+import 'package:quickalert/widgets/quickalert_dialog.dart';
 import 'package:sumarizeit/page/summary_done.dart';
 
 class WebPageSummaryPage extends StatefulWidget {
@@ -21,6 +21,16 @@ class _WebPageSummaryPageState extends State<WebPageSummaryPage> {
   }
 
   void _fetchDataOnlyBodyAndText(String url) async {
+    //validate is url
+    if (!Uri.parse(url).isAbsolute) {
+      QuickAlert.show(
+          context: context,
+          title: 'Invalid URL',
+          text: 'Please enter a valid URL',
+          type: QuickAlertType.error);
+      return;
+    }
+
     var parser = await Chaleno().load(url);
     String? body = '';
     //check if url is wikipedia
@@ -30,11 +40,43 @@ class _WebPageSummaryPageState extends State<WebPageSummaryPage> {
       body = parser!.querySelector('article').text;
     }
 
-    //remove all html tags
+    body ??= parser.querySelector('body').text;
+
     body = body!.replaceAll(RegExp(r'<[^>]*>'), '');
+    // Remove all script tags and content
+    body =
+        body.replaceAll(RegExp(r'<script[^>]*>.*?</script>', dotAll: true), '');
+    // Remove all style tags and content
+    body =
+        body.replaceAll(RegExp(r'<style[^>]*>.*?</style>', dotAll: true), '');
+    // Remove all HTML comments
+    body = body.replaceAll(RegExp(r'<!--.*?-->', dotAll: true), '');
+    // Remove all new lines
+    body = body.replaceAll(RegExp(r'\n'), '');
+    // Remove all tabs
+    body = body.replaceAll(RegExp(r'\t'), '');
+    // Remove all multiple spaces
+    body = body.replaceAll(RegExp(r' +'), ' ');
+    // Remove CSS blocks
+    RegExp cssPattern =
+        RegExp(r'@media[^{]*\{[^}]*\}|\.[^{]*\{[^}]*\}|\#[^{]*\{[^}]*\}');
+    body = body.replaceAll(cssPattern, '');
+
+    // Remove HTML tags
+    RegExp htmlPattern =
+        RegExp(r'<[^>]*>', multiLine: true, caseSensitive: true);
+    body = body.replaceAll(htmlPattern, '');
+
+    // Remove multiple spaces and new lines
+    body = body.replaceAll(RegExp(r'\s+'), ' ').trim();
 
     debugPrint('body: ${body.length}');
     if (body.isEmpty) {
+      QuickAlert.show(
+          context: context,
+          title: 'Invalid URL',
+          text: 'Please enter a valid URL',
+          type: QuickAlertType.error);
       return;
     }
 
@@ -49,46 +91,6 @@ class _WebPageSummaryPageState extends State<WebPageSummaryPage> {
       ),
       (Route<dynamic> route) => route.isFirst,
     );
-
-    // return http.get(Uri.parse(url)).then((response) {
-    //   if (response.statusCode == 200) {
-    //     final body = response.body;
-    //     // Extract the content within the <body> tags
-    //     final bodyTagContent = RegExp(r'<body[^>]*>(.*?)<\/body>', dotAll: true)
-    //             .firstMatch(body)
-    //             ?.group(1) ??
-    //         '';
-
-    //     // Remove all HTML tags
-    //     final textOnly = bodyTagContent.replaceAll(RegExp(r'<[^>]*>'), '');
-
-    //     // Remove extra whitespace and join the text
-    //     final text = textOnly
-    //         .split('\n')
-    //         .map((line) => line.trim())
-    //         .where((line) => line.isNotEmpty)
-    //         .join(' ');
-
-    //     debugPrint('text: ${text.length}');
-    //     setState(() {
-    //       dataToSummary = text;
-    //     });
-
-    //     Navigator.pushAndRemoveUntil(
-    //       context,
-    //       MaterialPageRoute(
-    //         builder: (context) => SummaryDone(
-    //           text: dataToSummary,
-    //           type: 'text-summary',
-    //           youtubeUrl: url,
-    //         ),
-    //       ),
-    //       (Route<dynamic> route) => route.isFirst,
-    //     );
-    //   } else {
-    //     throw Exception('Failed to load data');
-    //   }
-    // });
   }
 
   @override
