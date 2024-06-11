@@ -61,6 +61,7 @@ dependencies:
   app_tutorial: ^1.0.6
   app_tracking_transparency: ^2.0.5
   chaleno: ^0.0.8
+  loading_animation_widget: ^1.2.1
 
 flutter_launcher_icons:
   android: "launcher_icon"

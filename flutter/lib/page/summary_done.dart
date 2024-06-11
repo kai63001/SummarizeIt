@@ -6,6 +6,7 @@ import 'package:html_unescape/html_unescape.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 import 'package:intl/intl.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:purchases_ui_flutter/purchases_ui_flutter.dart';
 import 'package:quickalert/models/quickalert_type.dart';
 import 'package:quickalert/widgets/quickalert_dialog.dart';
@@ -657,7 +658,7 @@ class _SummaryDoneState extends State<SummaryDone>
                                         setState(() {
                                           _originalType = 'transcript';
                                         });
-                                         Navigator.pop(context);
+                                        Navigator.pop(context);
                                       },
                                       child: Padding(
                                         padding: const EdgeInsets.symmetric(
@@ -688,13 +689,13 @@ class _SummaryDoneState extends State<SummaryDone>
                                                 ])),
                                       ),
                                     ),
-                                    if (_originalType == 'transcript')
+                                  if (_originalType == 'transcript')
                                     GestureDetector(
                                       onTap: () {
                                         setState(() {
                                           _originalType = 'original';
                                         });
-                                         Navigator.pop(context);
+                                        Navigator.pop(context);
                                       },
                                       child: Padding(
                                         padding: const EdgeInsets.symmetric(
@@ -893,8 +894,10 @@ class _SummaryDoneState extends State<SummaryDone>
                         children: [
                           // Text(widget.text),
                           TextField(
-                            controller:
-                                TextEditingController(text: _originalType == 'transcript' ? _transcriptText : _originalText),
+                            controller: TextEditingController(
+                                text: _originalType == 'transcript'
+                                    ? _transcriptText
+                                    : _originalText),
                             maxLines: null,
                             readOnly: true,
                             decoration: const InputDecoration(
@@ -918,8 +921,25 @@ class _SummaryDoneState extends State<SummaryDone>
   }
 
   Widget _loading() {
-    return const Center(
-      child: CircularProgressIndicator(),
+    return Column(
+      //start center
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Center(
+          child: LoadingAnimationWidget.fourRotatingDots(
+            color: Colors.white,
+            size: 60,
+          ),
+        ),
+        const SizedBox(height: 20),
+        const Padding(
+          padding: EdgeInsets.all(35.0),
+          child: Text(
+            'Please wait while we create your summary. This can take 2-3 minutes or longer for larger content. Do not close this page',
+            style: TextStyle(color: Colors.white),
+          ),
+        ),
+      ],
     );
   }
 }

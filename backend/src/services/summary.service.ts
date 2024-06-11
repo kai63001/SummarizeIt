@@ -195,6 +195,13 @@ export class SummaryService {
       });
       return textNew;
     };
+
+    const getTimeFromLastOffset = () => {
+      const last = subtitles[subtitles.length - 1];
+      const sec = last.offset + last.duration;
+      //convert in mins
+      return Math.ceil(sec / 60);
+    };
     const transcript = textAndOffset();
 
     // check if the video is more than 6 hours
@@ -208,9 +215,9 @@ export class SummaryService {
     const { summary } = await this.openai.youtubeSummary(text);
 
     logger.info(`Summary generated successfully. ${sum}`);
+    const time = await getTimeFromLastOffset();
 
     // convert sum to mins
-    const time = Math.ceil(sum / 60);
 
     try {
       // save to db
