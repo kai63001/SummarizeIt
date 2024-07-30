@@ -10,7 +10,7 @@
     "_applicationInternalID" : "6503246906",
     "_developerTeamID" : "4426S2SFBM",
     "_failTransactionsEnabled" : false,
-    "_lastSynchronizedDate" : 739278006.43254602,
+    "_lastSynchronizedDate" : 741304239.35368395,
     "_locale" : "en_US",
     "_storefront" : "USA",
     "_storeKitErrors" : [
@@ -80,9 +80,18 @@
           "familyShareable" : false,
           "groupNumber" : 1,
           "internalID" : "6503912529",
-          "introductoryOffer" : null,
+          "introductoryOffer" : {
+            "internalID" : "39F4D0BD",
+            "numberOfPeriods" : 1,
+            "paymentMode" : "free",
+            "subscriptionPeriod" : "P1W"
+          },
           "localizations" : [
-
+            {
+              "description" : "Unlock all feature with Annually plan",
+              "displayName" : "Annually",
+              "locale" : "en_US"
+            }
           ],
           "productID" : "sumit_360_sub",
           "recurringSubscriptionPeriod" : "P1Y",
@@ -103,7 +112,11 @@
           "internalID" : "6503912561",
           "introductoryOffer" : null,
           "localizations" : [
-
+            {
+              "description" : "Unlock all feature with Monthly plan",
+              "displayName" : "Monthly",
+              "locale" : "en_US"
+            }
           ],
           "productID" : "sumit_30_sub",
           "recurringSubscriptionPeriod" : "P1M",
@@ -124,7 +137,11 @@
           "internalID" : "6503912748",
           "introductoryOffer" : null,
           "localizations" : [
-
+            {
+              "description" : "Unlock all feature with Weekly plan",
+              "displayName" : "Weekly",
+              "locale" : "en_US"
+            }
           ],
           "productID" : "sumit_7_sub",
           "recurringSubscriptionPeriod" : "P1W",
