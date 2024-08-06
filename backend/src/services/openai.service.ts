@@ -63,7 +63,7 @@ export class OpenAIService {
             content: chunk,
           },
         ],
-        model: 'gpt-3.5-turbo',
+        model: 'gpt-4o-mini',
       });
 
       const summary = response.choices[0].message.content;
@@ -110,7 +110,7 @@ export class OpenAIService {
             content: message,
           },
         ],
-        model: 'gpt-3.5-turbo',
+        model: 'gpt-4o-mini',
       });
 
       const summary = completion.choices[0].message.content;
@@ -139,7 +139,7 @@ export class OpenAIService {
           content: summary,
         },
       ],
-      model: 'gpt-3.5-turbo',
+      model: 'gpt-4o-mini',
     });
 
     const response = completion.choices[0].message.content;
@@ -160,7 +160,7 @@ export class OpenAIService {
           content: summary,
         },
       ],
-      model: 'gpt-3.5-turbo',
+      model: 'gpt-4o-mini',
     });
 
     const response = completion.choices[0].message.content;
@@ -199,7 +199,7 @@ export class OpenAIService {
           content: message,
         },
       ],
-      model: 'gpt-3.5-turbo',
+      model: 'gpt-4o-mini',
     });
 
     const summary = completion.choices[0].message.content;
@@ -245,7 +245,7 @@ export class OpenAIService {
           content: title,
         },
       ],
-      model: 'gpt-3.5-turbo',
+      model: 'gpt-4o-mini',
     });
 
     const output = completion.choices[0].message.content;
