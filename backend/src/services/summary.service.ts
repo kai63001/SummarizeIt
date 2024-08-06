@@ -24,7 +24,7 @@ export class SummaryService {
    * @returns A Promise that resolves to the number of tokens in the text.
    */
   private async countTokens(text: string): Promise<number> {
-    const tokens = await openaiTokenCounter.text(text, 'gpt-4o-mini');
+    const tokens = await openaiTokenCounter.text(text, 'gpt-3.5-turbo');
     return tokens;
   }
 
