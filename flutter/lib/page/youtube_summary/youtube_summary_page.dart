@@ -215,6 +215,7 @@ class _YotubeSummaryPageState extends State<YotubeSummaryPage> {
 
     if (languageSupoort.length == 0) {
       Navigator.pop(context);
+      yt.close();
       QuickAlert.show(
         context: context,
         type: QuickAlertType.error,
@@ -257,6 +258,7 @@ class _YotubeSummaryPageState extends State<YotubeSummaryPage> {
       };
     });
 
+    yt.close();
     Navigator.pop(context);
     // final response = await http.get(
     //   Uri.parse('$apiUrl/summary/get-youtube-data?url=$youtubeUrl'),
