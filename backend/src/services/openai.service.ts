@@ -3,7 +3,7 @@ import OpenAI, { toFile } from 'openai';
 import { OPENAI_API_KEY, TOKEN_RESIZE_API } from '@/config';
 import { jsonrepair } from 'jsonrepair';
 import { logger } from '@/utils/logger';
-import axios from 'axios';
+// import axios from 'axios';
 
 @Service()
 export class OpenAIService {
@@ -37,15 +37,20 @@ export class OpenAIService {
   }
 
   public async resizeTokenUsage(text: string) {
-    try {
-      const result = await axios.post(`${TOKEN_RESIZE_API}/gpt`, {
-        data: text,
-      });
-      return result.data;
-    } catch (error) {
-      logger.error(error);
-      return text;
-    }
+    // try {
+    //   const result = await axios.post(`${TOKEN_RESIZE_API}/gpt`, {
+    //     data: text,
+    //   });
+    //   return result.data;
+    // } catch (error) {
+    //   logger.error(error);
+    //   return text;
+    // }
+    return {
+      compressed_prompt_list: [text],
+      compressed_tokens: 0,
+      origin_tokens: 0,
+    };
   }
 
   public async generateSummary(text: string): Promise<string> {
