@@ -1077,6 +1077,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.1.2"
+  youtube_caption_scraper:
+    dependency: "direct main"
+    description:
+      name: youtube_caption_scraper
+      sha256: "6bd3454211514215f1f9f12251207c5ad8452c28484abce20db19b014c479eb4"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.2.0"
+  youtube_explode_dart:
+    dependency: "direct main"
+    description:
+      name: youtube_explode_dart
+      sha256: "26c9671d638f3396a1bfb2666f586988ee7b0ba3469e478b22a4c1a168bcf6ee"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.2.1"
 sdks:
   dart: ">=3.4.0 <4.0.0"
   flutter: ">=3.22.0"

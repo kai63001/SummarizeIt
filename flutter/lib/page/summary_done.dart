@@ -17,6 +17,7 @@ import 'package:sumarizeit/store/history_store.dart';
 import 'package:sumarizeit/store/purchase_store.dart';
 import 'package:sumarizeit/store/saved_time_store.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 import '../contant/contants.dart';
 import 'dart:convert';
 
@@ -264,21 +265,35 @@ class _SummaryDoneState extends State<SummaryDone>
           contentType: MediaType('audio', 'm4a')));
       response = await http.Response.fromStream(await request.send());
     } else {
-      api = Uri.parse('$apiUrl/summary/youtube-summary');
-      body = {
-        'url': widget.text,
-        'deviceId': deviceId,
-        'title': widget.title,
-        'lang': widget.lang
-      };
+      final youtubeUrlPattern = RegExp(
+          r'((?:https?:)?\/\/)?((?:www|m)\.)?((?:youtube\.com|youtu.be))(\/(?:[\w\-]+\?v=|embed\/|v\/)?)([\w\-]+)(\S+)?');
+      String? youtubeId = youtubeUrlPattern.firstMatch(_youtubeUrl)!.group(5);
+      var yt = YoutubeExplode();
+      var trackManifest = await yt.videos.closedCaptions.getManifest(youtubeId);
+
+      List<ClosedCaptionTrackInfo> trackInfo =
+          trackManifest.getByLanguage(widget.lang);
+
+      debugPrint('trackInfo: $trackInfo');
+
+      var track = await yt.videos.closedCaptions.get(trackInfo[0]);
+      // get all the caption merged into one
+      var caption = track.captions.map((e) => e.text).join(' ');
+      api = Uri.parse('$apiUrl/summary/text-summary');
+      body = {'text': caption, 'deviceId': deviceId};
       response = await http.post(
         api,
         body: body,
       );
+      setState(() {
+        _originalText = caption;
+      });
+      yt.close();
     }
 
     if (response.statusCode == 200) {
       var responseBody = jsonDecode(response.body); // Add this line
+      debugPrint('response: $responseBody');
       if (widget.type == 'text-summary') {
         setState(() {
           _isSummary = true;
@@ -316,16 +331,16 @@ class _SummaryDoneState extends State<SummaryDone>
         // * youtube summary
         setState(() {
           _isSummary = true;
-          _summaryText = responseBody['data']['summary']; // Change this line
-          _originalText = unescape.convert(responseBody['data']['text']);
-          if (responseBody['data']['transcript'] != null ||
-              responseBody['data']['transcript'] != '') {
-            _transcriptText = responseBody['data']['transcript'];
-          }
           _titleText = widget.title;
+          _summaryText =
+              responseBody['data']['summary']['summary']; // Change this line
+          // if (responseBody['data']['transcript'] != null ||
+          //     responseBody['data']['transcript'] != '') {
+          //   _transcriptText = responseBody['data']['transcript'];
+          // }
         });
-        double time = (responseBody['data']['time'] as num).toDouble();
-        alertSaveTime(time);
+        // double time = (responseBody['data']['time'] as num).toDouble();
+        alertSaveTime(widget.audioDuration);
         if (_transcriptText.isNotEmpty) {
           setState(() {
             _originalType = 'transcript';

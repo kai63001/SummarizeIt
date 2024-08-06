@@ -10,7 +10,7 @@
     "_applicationInternalID" : "6503246906",
     "_developerTeamID" : "4426S2SFBM",
     "_failTransactionsEnabled" : false,
-    "_lastSynchronizedDate" : 741304239.35368395,
+    "_lastSynchronizedDate" : 744625339.86687899,
     "_locale" : "en_US",
     "_storefront" : "USA",
     "_storeKitErrors" : [
@@ -80,12 +80,7 @@
           "familyShareable" : false,
           "groupNumber" : 1,
           "internalID" : "6503912529",
-          "introductoryOffer" : {
-            "internalID" : "39F4D0BD",
-            "numberOfPeriods" : 1,
-            "paymentMode" : "free",
-            "subscriptionPeriod" : "P1W"
-          },
+          "introductoryOffer" : null,
           "localizations" : [
             {
               "description" : "Unlock all feature with Annually plan",

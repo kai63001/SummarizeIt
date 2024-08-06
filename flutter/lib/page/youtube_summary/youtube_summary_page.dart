@@ -8,6 +8,8 @@ import 'package:quickalert/widgets/quickalert_dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sumarizeit/page/summary_done.dart';
 import 'package:sumarizeit/tutorial/tutorial_component.dart';
+import 'package:youtube_caption_scraper/youtube_caption_scraper.dart';
+import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 import '../../contant/contants.dart';
 import 'package:http/http.dart' as http;
 
@@ -116,22 +118,164 @@ class _YotubeSummaryPageState extends State<YotubeSummaryPage> {
       );
       return;
     }
-    final response = await http.get(
-      Uri.parse('$apiUrl/summary/get-youtube-data?url=$youtubeUrl'),
+
+    String? youtubeId = youtubeUrlPattern.firstMatch(youtubeUrl)!.group(5);
+
+    // Fetch caption tracks – these are objects containing info like
+    // base url for the caption track and language code.
+    QuickAlert.show(
+      context: context,
+      type: QuickAlertType.loading,
+      title: 'Please wait',
+      text: 'Getting youtube data',
+      disableBackBtn: true,
     );
 
-    if (response.statusCode == 200) {
-      var responseBody = jsonDecode(response.body);
-      setState(() {
-        _isGetYoutubeData = true;
-        _youtubeData = responseBody['data'];
-      });
-      if (_youtubeData['lang'].length > 0) {
-        _lang = _youtubeData['lang'].contains('en') ? 'en' : _youtubeData['lang'][0];
+    var yt = YoutubeExplode();
+
+    var trackManifest = await yt.videos.closedCaptions.getManifest(youtubeId);
+
+    // debugPrint('trackManifest: $trackManifest');
+
+    List<String> languageSupoort = [];
+    List<String> languageCode = [
+      'af',
+      'am',
+      'ar',
+      'az',
+      'bn',
+      'bg',
+      'my',
+      'ca',
+      'zh-Hans',
+      'zh-Hant',
+      'hr',
+      'cs',
+      'da',
+      'nl',
+      'en',
+      'en-US',
+      'en-GB',
+      'et',
+      'fil',
+      'fi',
+      'fr',
+      'de',
+      'el',
+      'gu',
+      'iw',
+      'hi',
+      'hu',
+      'is',
+      'id',
+      'it',
+      'ja',
+      'kn',
+      'kk',
+      'km',
+      'ko',
+      'lo',
+      'lv',
+      'lt',
+      'ms',
+      'ml',
+      'mr',
+      'mn',
+      'ne',
+      'no',
+      'fa',
+      'pl',
+      'pt',
+      'pa',
+      'ro',
+      'ru',
+      'sr',
+      'si',
+      'sk',
+      'sl',
+      'es',
+      'sw',
+      'sv',
+      'ta',
+      'te',
+      'th',
+      'tr',
+      'uk',
+      'ur',
+      'vi',
+      'cy'
+    ];
+
+    for (var lang in languageCode) {
+      var languages = trackManifest.getByLanguage(lang);
+      if (languages.length > 0) {
+        languageSupoort.add(lang);
       }
-    } else {
-      throw Exception('Failed to load summary');
     }
+
+    if (languageSupoort.length == 0) {
+      Navigator.pop(context);
+      QuickAlert.show(
+        context: context,
+        type: QuickAlertType.error,
+        title: 'Error',
+        text: 'This video does not have any subtitle',
+      );
+      return;
+    }
+    //get Language support
+    // var languages = trackManifest.getByLanguage('ko');
+
+    //get title duration and thumbnail
+    var video = await yt.videos.get(youtubeId);
+
+    // List<ClosedCaptionTrackInfo> trackInfo = trackManifest.getByLanguage('en');
+
+    // var track = await yt.videos.closedCaptions.get(trackInfo[0]);
+    // // get all the caption merged into one
+    // var caption = track.captions.map((e) => e.text).join(' ');
+    // debugPrint('caption: $caption');
+
+    // debugPrint('track: $track');
+    List<String> sortLangEnFirst(List<String> lang) {
+      if (lang.length > 0) {
+        if (lang.contains('en')) {
+          lang.remove('en');
+          lang.insert(0, 'en');
+        }
+      }
+      return lang;
+    }
+
+    setState(() {
+      _isGetYoutubeData = true;
+      _youtubeData = {
+        'title': video.title,
+        'thumbnail': video.thumbnails.standardResUrl,
+        'lang': sortLangEnFirst(languageSupoort),
+        'duration': video.duration?.inMinutes.toDouble()
+      };
+    });
+
+    Navigator.pop(context);
+    // final response = await http.get(
+    //   Uri.parse('$apiUrl/summary/get-youtube-data?url=$youtubeUrl'),
+    // );
+
+    // if (response.statusCode == 200) {
+    //   var responseBody = jsonDecode(response.body);
+    //   setState(() {
+    //     _isGetYoutubeData = true;
+    //     _youtubeData = responseBody['data'];
+    //   });
+    //   if (_youtubeData['lang'].length > 0) {
+    //     _lang = _youtubeData['lang'].contains('en')
+    //         ? 'en'
+    //         : _youtubeData['lang'][0];
+    //   }
+    // } else {
+    //   throw Exception('Failed to load summary');
+    // }
   }
 
   @override
@@ -199,7 +343,7 @@ class _YotubeSummaryPageState extends State<YotubeSummaryPage> {
                                     ),
                                   ),
                                   Wrap(
-                                   direction: Axis.horizontal, 
+                                    direction: Axis.horizontal,
                                     children: [
                                       //loop for language
                                       for (var lang in _youtubeData['lang'])
@@ -214,7 +358,8 @@ class _YotubeSummaryPageState extends State<YotubeSummaryPage> {
                                               Navigator.pop(context);
                                             },
                                             style: ButtonStyle(
-                                              padding: MaterialStateProperty.all(
+                                              padding:
+                                                  MaterialStateProperty.all(
                                                 const EdgeInsets.symmetric(
                                                     vertical: 12.5),
                                               ),
@@ -265,6 +410,7 @@ class _YotubeSummaryPageState extends State<YotubeSummaryPage> {
                         title: _youtubeData['title'],
                         youtubeUrl: _controller.text,
                         lang: _lang,
+                        audioDuration: _youtubeData['duration'],
                       ),
                     ),
                     (Route<dynamic> route) => route.isFirst,
